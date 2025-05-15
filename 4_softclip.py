@@ -8,6 +8,7 @@ from plot_config import PlotConfig
 config = PlotConfig()
 config.apply_style()
 
+
 def logoneplusexp(x):
     ans = np.log(1 + np.exp(-np.abs(x))) + np.maximum(x, 0)
     return ans
@@ -25,13 +26,12 @@ def smoothclip(x, x_min, x_max, sharpness):
 def softclip(x, x_min, x_max, sharpness):
     return np.exp(smoothclip(np.log(x), np.log(x_min), np.log(x_max), sharpness))
 
+
 x = np.linspace(-0.2, 2, 10000)
 sharpnesses = np.logspace(0, 1.5, 10)
 x_min, x_max = 0.1, 0.9
 
-custom_colormap = LinearSegmentedColormap.from_list(
-            "custom_colormap2", config.colors2
-        )
+custom_colormap = LinearSegmentedColormap.from_list("custom_colormap2", config.colors2)
 colors = custom_colormap(np.linspace(0, 1, len(sharpnesses)))
 
 fig, ax = plt.subplots(figsize=(config.fig_width, config.fig_height))

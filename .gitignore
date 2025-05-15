@@ -1,2 +1,4 @@
 __pycache__/
 python_envs/
+.flake8 
+pyproject.toml
