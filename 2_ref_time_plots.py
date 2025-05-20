@@ -16,7 +16,6 @@ from matplotlib.colors import LinearSegmentedColormap
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from plot_config import PlotConfig
 
-
 class MethodPlots2:
 
     config = PlotConfig()
@@ -29,6 +28,7 @@ class MethodPlots2:
         T=100,
         T0_REF=17,
         num_samples=10000,
+        large_num_samples=100000,
         include_Mf=True,
         include_chif=True,
     ):
@@ -39,6 +39,7 @@ class MethodPlots2:
         self.include_Mf = include_Mf
         self.include_chif = include_chif
         self.num_samples = num_samples
+        self.large_num_samples = large_num_samples
 
         self.sim_main = SXS_CCE(id, lev="Lev5", radius="R2")
         self.sim_lower = SXS_CCE(id, lev="Lev4", radius="R2")
@@ -131,6 +132,8 @@ class MethodPlots2:
             self.tuned_param_dict_WN,
             bgp.kernel_s,
             t0=self.T0_REF,
+            use_nonlinear_params=False,
+            num_samples=self.num_samples,
             t0_method="geq",
             T=self.T,
             spherical_modes=self.spherical_modes,
@@ -147,12 +150,91 @@ class MethodPlots2:
             self.tuned_param_dict_GP,
             bgp.kernel_main,
             t0=self.T0_REF,
+            use_nonlinear_params=False,
+            num_samples=self.num_samples,
             t0_method="geq",
             T=self.T,
             spherical_modes=self.spherical_modes,
             include_chif=self.include_chif,
             include_Mf=self.include_Mf,
         )
+
+        ref_fit_GP_large_sample = bgp.BGP_fit(
+            self.sim_main.times,
+            self.sim_main.h,
+            self.qnm_list,
+            self.Mf_ref,
+            self.chif_mag_ref,
+            self.tuned_param_dict_GP,
+            bgp.kernel_main,
+            t0=self.T0_REF,
+            use_nonlinear_params=False,
+            num_samples=self.large_num_samples,
+            t0_method="geq",
+            T=self.T,
+            spherical_modes=self.spherical_modes,
+            include_chif=self.include_chif,
+            include_Mf=self.include_Mf,
+        )
+
+        ref_fit_WN_large_sample = bgp.BGP_fit(
+            self.sim_main.times,
+            self.sim_main.h,
+            self.qnm_list,
+            self.Mf_ref,
+            self.chif_mag_ref,
+            self.tuned_param_dict_WN,
+            bgp.kernel_s,
+            t0=self.T0_REF,
+            use_nonlinear_params=False,
+            num_samples=self.large_num_samples,
+            t0_method="geq",
+            T=self.T,
+            spherical_modes=self.spherical_modes,
+            include_chif=self.include_chif,
+            include_Mf=self.include_Mf,
+        )
+
+        ref_fit_WN_NL = bgp.BGP_fit(
+            self.sim_main.times,
+            self.sim_main.h,
+            self.qnm_list,
+            self.Mf_ref,
+            self.chif_mag_ref,
+            self.tuned_param_dict_WN,
+            bgp.kernel_s,
+            t0=self.T0_REF,
+            use_nonlinear_params=True,
+            num_samples=self.num_samples,
+            t0_method="geq",
+            T=self.T,
+            spherical_modes=self.spherical_modes,
+            include_chif=self.include_chif,
+            include_Mf=self.include_Mf,
+        )
+
+        ref_fit_GP_NL = bgp.BGP_fit(
+            self.sim_main.times,
+            self.sim_main.h,
+            self.qnm_list,
+            self.Mf_ref,
+            self.chif_mag_ref,
+            self.tuned_param_dict_GP,
+            bgp.kernel_main,
+            t0=self.T0_REF,
+            use_nonlinear_params=True,
+            num_samples=self.num_samples,
+            t0_method="geq",
+            T=self.T,
+            spherical_modes=self.spherical_modes,
+            include_chif=self.include_chif,
+            include_Mf=self.include_Mf,
+        )
+
+        self.fit_WN = ref_fit_WN
+        self.fit_GP = ref_fit_GP
+        self.fit_WN_NL = ref_fit_WN_NL
+        self.fit_GP_NL = ref_fit_GP_NL
 
         self.ref_params = []
         for re_c, im_c in zip(np.real(ref_fit_LS["C"]), np.imag(ref_fit_LS["C"])):
@@ -161,10 +243,14 @@ class MethodPlots2:
 
         self.ref_samples_WN = ref_fit_WN.fit["samples"]
         self.ref_samples_GP = ref_fit_GP.fit["samples"]
-        self.samples_abs_WN = ref_fit_WN.fit["sample_amplitudes"]
-        self.samples_abs_GP = ref_fit_GP.fit["sample_amplitudes"]
-        self.samples_weights_WN = ref_fit_WN.fit["samples_weights"]
-        self.samples_weights_GP = ref_fit_GP.fit["samples_weights"]
+
+        self.ref_samples_WN_NL = ref_fit_WN_NL.fit["samples"]
+        self.ref_samples_GP_NL = ref_fit_GP_NL.fit["samples"]
+
+        self.samples_abs_WN = ref_fit_WN_large_sample.fit["sample_amplitudes"]
+        self.samples_abs_GP = ref_fit_GP_large_sample.fit["sample_amplitudes"]
+        self.samples_weights_WN = ref_fit_WN_large_sample.fit["samples_weights"]
+        self.samples_weights_GP = ref_fit_GP_large_sample.fit["samples_weights"]
 
         self.residual_WN = np.zeros((len(ref_fit_WN.fit["analysis_times"])))
         self.residual_GP = np.zeros((len(ref_fit_GP.fit["analysis_times"])))
@@ -174,14 +260,21 @@ class MethodPlots2:
         self.model_times_WN = ref_fit_WN.fit["analysis_times"]
         self.model_times_GP = ref_fit_GP.fit["analysis_times"]
 
-        self.residual_WN = (
-            ref_fit_WN.fit["data_array_masked"][mode_index] - ref_fit_WN.fit["model_array_linear"][mode_index]
-        )
-        self.residual_GP = (
-            ref_fit_GP.fit["data_array_masked"][mode_index] - ref_fit_GP.fit["model_array_linear"][mode_index]
-        )
-
         self.param_list = [qnm for qnm in self.qnm_list for _ in range(2)] + ["chif"] + ["Mf"]
+
+        # Get various quantities
+
+        self.significance_GP = bgp.get_significance_list(self.qnm_list, ref_fit_GP.fit['mean'], ref_fit_GP.fit['fisher_matrix'], include_chif=True, include_Mf=True)
+        self.significance_WN = bgp.get_significance_list(self.qnm_list, ref_fit_WN.fit['mean'], ref_fit_WN.fit['fisher_matrix'], include_chif=True, include_Mf=True)
+
+        self.neff_GP = ref_fit_GP_large_sample.fit["N_effective_samples"]
+        self.neff_WN = ref_fit_WN_large_sample.fit["N_effective_samples"]
+        
+        print("N_eff GP:", self.neff_GP)
+        print("N_eff WN:", self.neff_WN)
+
+        print("Significance GP:", self.significance_GP)
+        print("Significance WN:", self.significance_WN)
 
     def plot_fundamental_kde(self, output_path="outputs/fundamental_corner.pdf", show=False):
 
@@ -742,115 +835,130 @@ class MethodPlots2:
 
     def linear_approximation(self, output_path="outputs/linear_approximation.pdf", show=False):
 
+        fig, ax = plt.subplots(1, 1, figsize=(self.config.fig_width, self.config.fig_height))
         colors = self.custom_colormap2(np.linspace(0, 1, 3))
 
-        spins_GP = self.ref_samples_GP[:, -2]
-        masses_GP = self.ref_samples_GP[:, -1]
-        spins_WN = self.ref_samples_WN[:, -2]
-        masses_WN = self.ref_samples_WN[:, -1]
+        fits = [self.fit_GP, self.fit_WN, self.fit_GP_NL, self.fit_WN_NL]
+        fitnames = ["GP", "WN", "GP_NL", "WN_NL"]
 
-        real_freq_GP_deviations = []
-        real_freq_WN_deviations = []
-        imag_freq_GP_deviations = []
-        imag_freq_WN_deviations = []
-
-        mixing_GP_deviations = []
-        mixing_WN_deviations = []
-
-        ell, m, n, sign = (2, 2, 0, 1)
+        ell, m, n, sign = (2, 2, 0, 1) # Note this is currently hardcoded below!! 
         ellp, mp = (2, 2)
 
-        ref_freq = qnmfits.qnm.omega(ell, m, n, sign, self.chif_mag_ref, Mf=self.Mf_ref, s=-2)
-        ref_mixing = qnmfits.qnm.mu(ellp, mp, ell, m, n, sign, self.chif_mag_ref)
+        # Get indices for the chosen modes
+        qnm_index = self.qnm_list.index((ell, m, n, sign))
+        spherical_mode_index = self.spherical_modes.index((ellp, mp))
 
-        for i, sample in enumerate(self.ref_samples_GP):
+        for fit, fitname in zip(fits, fitnames):
 
-            approx_freq_GP = qnmfits.qnm.omega(ell, m, n, sign, spins_GP[i], Mf=masses_GP[i], s=-2)
-            approx_freq_WN = qnmfits.qnm.omega(ell, m, n, sign, spins_WN[i], Mf=masses_WN[i], s=-2)
+            mass_ref = fit.fit["Mf_ref"]
+            chif_ref = fit.fit["chif_ref"]
 
-            approx_mixing_GP = qnmfits.qnm.mu(ellp, mp, ell, m, n, sign, spins_GP[i])
-            approx_mixing_WN = qnmfits.qnm.mu(ellp, mp, ell, m, n, sign, spins_WN[i])
+            freq_ref = fit.fit["frequencies"][qnm_index]
+            dfreq_dchi_ref = fit.fit["frequency_derivatives"][qnm_index]
 
-            real_freq_GP_deviations.append(np.abs(np.real(approx_freq_GP - ref_freq)) / np.real(ref_freq))
-            real_freq_WN_deviations.append(np.abs(np.real(approx_freq_WN - ref_freq)) / np.real(ref_freq))
+            mixing_ref = fit.fit["mixing_coefficients"][spherical_mode_index][qnm_index]
+            dmu_dchi_ref = fit.fit["mixing_derivatives"][spherical_mode_index][qnm_index]
 
-            imag_freq_GP_deviations.append(np.abs(np.imag(approx_freq_GP - ref_freq)) / -np.imag(ref_freq))
-            imag_freq_WN_deviations.append(np.abs(np.imag(approx_freq_WN - ref_freq)) / -np.imag(ref_freq))
+            chifs = fit.fit["samples"][:, -2]
+            mfs = fit.fit["samples"][:, -1]
 
-            mixing_GP_deviations.append(np.abs(approx_mixing_GP - ref_mixing) / np.abs(ref_mixing))
-            mixing_WN_deviations.append(np.abs(approx_mixing_WN - ref_mixing) / np.abs(ref_mixing))
+            real_freq_deviations = []
+            imag_freq_deviations = []
+            mixing_deviations = []
 
-        real_freq_GP_deviations = np.array(real_freq_GP_deviations)
-        real_freq_WN_deviations = np.array(real_freq_WN_deviations)
-        imag_freq_GP_deviations = np.array(imag_freq_GP_deviations)
-        imag_freq_WN_deviations = np.array(imag_freq_WN_deviations)
-        mixing_GP_deviations = np.array(mixing_GP_deviations)
-        mixing_WN_deviations = np.array(mixing_WN_deviations)
+            for i, _ in enumerate(fit.fit["samples"]):
 
-        real_freq_GP_deviations = np.hstack((real_freq_GP_deviations, -real_freq_GP_deviations))
-        real_freq_WN_deviations = np.hstack((real_freq_WN_deviations, -real_freq_WN_deviations))
-        imag_freq_GP_deviations = np.hstack((imag_freq_GP_deviations, -imag_freq_GP_deviations))
-        imag_freq_WN_deviations = np.hstack((imag_freq_WN_deviations, -imag_freq_WN_deviations))
-        mixing_GP_deviations = np.hstack((mixing_GP_deviations, -mixing_GP_deviations))
-        mixing_WN_deviations = np.hstack((mixing_WN_deviations, -mixing_WN_deviations))
+                nonlinear_freq = qnmfits.qnm.omega(ell, m, n, sign, chifs[i], Mf=mfs[i], s=-2)
+                nonlinear_mixing = qnmfits.qnm.mu(ellp, mp, ell, m, n, sign, chifs[i])
+                linear_freq = freq_ref - (mfs[i] - mass_ref) * freq_ref / mass_ref + \
+                    (chifs[i] - chif_ref) * dfreq_dchi_ref
+                linear_mixing = mixing_ref + (chifs[i] - chif_ref) * dmu_dchi_ref
 
-        fig, ax = plt.subplots(1, 1, figsize=(self.config.fig_width, self.config.fig_height))
+                real_freq_deviations.append(np.abs(np.real(nonlinear_freq - linear_freq)) / np.real(nonlinear_freq))
+                imag_freq_deviations.append(np.abs(np.imag(nonlinear_freq - linear_freq)) / -np.imag(nonlinear_freq))
+                mixing_deviations.append(np.abs(nonlinear_mixing - linear_mixing) / np.abs(nonlinear_mixing))
 
-        sns.kdeplot(
-            real_freq_GP_deviations,
-            ax=ax,
-            color=colors[0],
-            label=r"$\rm Re(\omega_{\alpha})$",
-        )
-        sns.kdeplot(real_freq_WN_deviations, ax=ax, color=colors[0], linestyle="--")
+            real_freq_deviations = np.hstack((np.array(real_freq_deviations), -np.array(real_freq_deviations)))
+            imag_freq_deviations = np.hstack((np.array(imag_freq_deviations), -np.array(imag_freq_deviations)))
+            mixing_deviations = np.hstack((np.array(mixing_deviations), -np.array(mixing_deviations)))
 
-        sns.kdeplot(
-            imag_freq_GP_deviations,
-            ax=ax,
-            color=colors[1],
-            label=r"$\rm Im(\omega_{\alpha})$",
-        )
-        sns.kdeplot(imag_freq_WN_deviations, ax=ax, color=colors[1], linestyle="--")
+            if fitname == "GP":
+                ls = "-"
+                lw = 1.
+            elif fitname == "WN":
+                ls = "--"
+                lw = 1.
+            elif fitname == "GP_NL":
+                ls = "-"
+                lw = 0.5
+            elif fitname == "WN_NL":
+                ls = "--"
+                lw = 0.5
 
-        sns.kdeplot(
-            mixing_GP_deviations,
-            ax=ax,
-            color=colors[2],
-            label=r"$|\mu^{\beta}_{\alpha}|$",
-        )
-        sns.kdeplot(mixing_WN_deviations, ax=ax, color=colors[2], linestyle="--")
+            sns.kdeplot(
+                real_freq_deviations,
+                ax=ax,
+                color=colors[0],
+                linestyle=ls,
+                linewidth=lw,
+                bw_adjust=2.0,  
+            )
 
-        color_legend = ax.legend(
-            handles=ax.get_legend_handles_labels()[0],
-            labels=ax.get_legend_handles_labels()[1],
-            title_fontsize=8,
-            ncol=1,
+            sns.kdeplot(
+                imag_freq_deviations,
+                ax=ax,
+                color=colors[1],
+                linestyle=ls,
+                linewidth=lw,
+                bw_adjust=2.0, 
+            )
+
+            sns.kdeplot(
+                mixing_deviations,
+                ax=ax,
+                color=colors[2],
+                linestyle=ls,
+                linewidth=lw,
+                bw_adjust=2.0, 
+            )
+            
+
+        real_freq_line = Line2D([0], [0], color=colors[0], linestyle="-", linewidth=1.)
+        imag_freq_line = Line2D([0], [0], color=colors[1], linestyle="-", linewidth=1.)
+        mixing_line = Line2D([0], [0], color=colors[2], linestyle="-", linewidth=1.)
+        leg2 = ax.legend(
+            [real_freq_line, imag_freq_line, mixing_line],
+            [r"Re($\omega_{\alpha}$)", r"Im($\omega_{\alpha}$)", r"$|\mu_{\alpha}^{\beta}|$"],
             frameon=False,
             loc="upper right",
+            ncol=3,
             fontsize=7,
         )
-
-        fig.add_artist(color_legend)
-
-        solid_line = Line2D([0], [0], color="black", linestyle="-")
-        dashed_line = Line2D([0], [0], color="black", linestyle="--")
-
-        ax.legend(
-            [solid_line, dashed_line],
-            ["GP", "WN"],
+        
+        # Create a legend for line styles
+        solid_line = Line2D([0], [0], color="black", linestyle="-", linewidth=1.)
+        dashed_line = Line2D([0], [0], color="black", linestyle="--", linewidth=1.)
+        thin_solid_line = Line2D([0], [0], color="black", linestyle="-", linewidth=0.5)
+        thin_dashed_line = Line2D([0], [0], color="black", linestyle="--", linewidth=0.5)
+        
+        leg1 = ax.legend(
+            [solid_line, dashed_line, thin_solid_line, thin_dashed_line], 
+            ["GP (ABD)", "WN (ABD)", "GP (nonlinear)", "WN (nonlinear)"],
             frameon=False,
-            loc="lower left",
+            loc="center right",
             ncol=1,
             fontsize=7,
         )
+        
+        ax.set_xscale('log')
+        ax.set_yscale('log')
+        ax.set_ylim(1e2, 1e8) 
+        #ax.set_xlim(0, 1e-4)
 
-        ax.set_xlabel("Fractional deviation")
-        ax.set_xscale("log")
-        ax.set_yscale("log")
-        # ax.set_xlim(1e-4, 2e-2)
-        ax.set_ylim(1e-1, 1e4)
-
-        plt.tight_layout()
+        # Add both legends to the plot
+        ax.add_artist(leg1)
+        ax.add_artist(leg2)
+        
         plt.savefig(output_path, bbox_inches="tight")
         if show:
             plt.show()
@@ -858,13 +966,14 @@ class MethodPlots2:
 
 
 def main():
-    # Initialize the MethodPlots instance
     method_plots = MethodPlots2(
         id="0001",
-        N_MAX=7,
+        N_MAX=6,
         T=100,
         T0_REF=17,
-        num_samples=10000,
+        num_samples=int(1e4),
+        #large_num_samples=int(7e6),
+        large_num_samples=int(1e4),
         include_Mf=True,
         include_chif=True,
     )
@@ -877,7 +986,6 @@ def main():
     method_plots.compute_mf_chif()
     method_plots.get_t0_ref_fits()
 
-    # Generate plots
     method_plots.linear_approximation(output_path="outputs/linear_approximation.pdf", show=False)
     method_plots.plot_fundamental_kde(output_path="outputs/fundamental_kde.pdf", show=False)
     method_plots.plot_overtone_kde(output_path="outputs/overtone_kde.pdf", show=False)

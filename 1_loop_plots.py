@@ -33,6 +33,8 @@ class MethodPlots:
         num_samples=10000,
         include_Mf=True,
         include_chif=True,
+        use_nonlinear_params=False,
+        decay_corrected=False 
     ):
         self.id = id
         self.N_MAX = N_MAX
@@ -41,6 +43,8 @@ class MethodPlots:
         self.include_Mf = include_Mf
         self.include_chif = include_chif
         self.num_samples = num_samples
+        self.use_nonlinear_params = use_nonlinear_params
+        self.decay_corrected = decay_corrected
 
         self.sim_main = SXS_CCE(id, lev="Lev5", radius="R2")
         self.sim_lower = SXS_CCE(id, lev="Lev4", radius="R2")
@@ -55,7 +59,7 @@ class MethodPlots:
         self.chif_mag_ref = self.sim_main.chif_mag
         self.Mf_ref = self.sim_main.Mf
 
-        self.T0s = np.linspace(-10, 100, 440)
+        self.T0s = np.linspace(-10, 100, 110)
 
         self._initialize_results()
 
@@ -231,6 +235,7 @@ class MethodPlots:
 
         return fits_LS, main_data_masked, lower_data_masked
 
+
     def compute_quantities(self):
 
         fits_LS, main_data_masked, lower_data_masked = self._compute_LS_fits()
@@ -244,6 +249,8 @@ class MethodPlots:
             self.tuned_param_dict_WN,
             bgp.kernel_s,
             t0=self.T0s,
+            use_nonlinear_params=self.use_nonlinear_params,
+            decay_corrected=self.decay_corrected,
             num_samples=self.num_samples,
             t0_method="closest",
             T=self.T,
@@ -261,6 +268,8 @@ class MethodPlots:
             self.tuned_param_dict_GP,
             bgp.kernel_main,
             t0=self.T0s,
+            use_nonlinear_params=self.use_nonlinear_params,
+            decay_corrected=self.decay_corrected,
             num_samples=self.num_samples,
             t0_method="closest",
             T=self.T,
@@ -271,9 +280,6 @@ class MethodPlots:
 
         self._store_results(fits_GP.fits, fits_WN.fits, fits_LS, main_data_masked, lower_data_masked)
 
-        self.fits_WN = fits_WN
-        self.fits_GP = fits_GP
-        self.fits_LS = fits_LS
 
     def _store_results(self, fit_GP, fit_WN, fit_LS, main_data, lower_data):
         """
@@ -281,6 +287,7 @@ class MethodPlots:
         """
 
         for i, t0 in enumerate(self.T0s):
+
             # Mismatches
 
             model_array_LS = np.array([fit_LS[i]["model"][key] for key in fit_LS[i]["model"].keys()])
@@ -352,18 +359,15 @@ class MethodPlots:
                 include_Mf=self.include_Mf,
             )
 
-            self.neffs_WN[i] = np.sum(fit_WN[i]["samples_weights"]) ** 2 / np.sum(fit_WN[i]["samples_weights"] ** 2)
-            self.neffs_GP[i] = np.sum(fit_GP[i]["samples_weights"]) ** 2 / np.sum(fit_GP[i]["samples_weights"] ** 2)
-
-            # self.linear_approx_mismatch_WN[i] = fit_WN[i]["linear_approx_mismatch"]
-            # self.linear_approx_mismatch_GP[i] = fit_GP[i]["linear_approx_mismatch"]
-
             # Samples
             self.samples_WN[i, :, :] = fit_WN[i]["samples"]
             self.samples_GP[i, :, :] = fit_GP[i]["samples"]
 
             self.mean_vector_WN[i, :] = fit_WN[i]["mean"]
             self.mean_vector_GP[i, :] = fit_GP[i]["mean"]
+
+            self.neffs_WN[i] = np.sum(fit_WN[i]["samples_weights"]) ** 2 / np.sum(fit_WN[i]["samples_weights"] ** 2)
+            self.neffs_GP[i] = np.sum(fit_GP[i]["samples_weights"]) ** 2 / np.sum(fit_GP[i]["samples_weights"] ** 2)
 
     def plot_mismatch(self, output_path="outputs/mismatch_plot.pdf", show=False):
         """
@@ -450,32 +454,32 @@ class MethodPlots:
         colors = self.custom_colormap(np.linspace(0, 1, len(self.qnm_list)))
 
         for i, qnm in enumerate(self.qnm_list):
-            decay_time = qnmfits.qnm.omega_list([qnm], self.chif_mag_ref, self.Mf_ref)[0].imag
-            closest_time_index = np.argmin(np.abs(self.T0s - 0))
-            C_tau = np.exp(decay_time * (self.T0s[closest_time_index] - self.T0s))
+            #decay_time = qnmfits.qnm.omega_list([qnm], self.chif_mag_ref, self.Mf_ref)[0].imag
+            #closest_time_index = np.argmin(np.abs(self.T0s - 0))
+            #C_tau = np.exp(decay_time * (self.T0s[closest_time_index] - self.T0s))
             ax.plot(
                 self.T0s,
-                self.amplitudes_GP_percentiles[0.5][:, i] * C_tau,
+                self.amplitudes_GP_percentiles[0.5][:, i],
                 label=f"{qnm[2]}",
                 color=colors[i],
             )
             ax.plot(
                 self.T0s,
-                self.amplitudes_WN_percentiles[0.5][:, i] * C_tau,
+                self.amplitudes_WN_percentiles[0.5][:, i],
                 linestyle="--",
                 color=colors[i],
             )
             ax.fill_between(
                 self.T0s,
-                self.amplitudes_GP_percentiles[0.1][:, i] * C_tau,
-                self.amplitudes_GP_percentiles[0.9][:, i] * C_tau,
+                self.amplitudes_GP_percentiles[0.1][:, i],
+                self.amplitudes_GP_percentiles[0.9][:, i],
                 alpha=0.2,
                 color=colors[i],
             )
             ax.fill_between(
                 self.T0s,
-                self.amplitudes_WN_percentiles[0.1][:, i] * C_tau,
-                self.amplitudes_WN_percentiles[0.9][:, i] * C_tau,
+                self.amplitudes_WN_percentiles[0.1][:, i],
+                self.amplitudes_WN_percentiles[0.9][:, i],
                 alpha=0.2,
                 color=colors[i],
             )
@@ -1064,7 +1068,6 @@ class MethodPlots:
 
 
 def main():
-    # Initialize the MethodPlots instance
     method_plots = MethodPlots(
         id="0001",
         N_MAX=7,
@@ -1073,19 +1076,19 @@ def main():
         num_samples=10000,
         include_Mf=True,
         include_chif=True,
+        use_nonlinear_params=False,
+        decay_corrected=True
     )
 
     # method_plots.qnm_list += [(3,2,0,1)]
     # method_plots._initialize_results()
 
-    # Perform necessary computations
     method_plots.load_tuned_parameters()
     method_plots.compute_mf_chif()
     method_plots.compute_quantities()
 
     # method_plots.diagnostic_plots()
 
-    # Generate plots
     method_plots.plot_spirals_ani(show=False)
     method_plots.plot_spirals_static(output_path="outputs/amplitude_spiral.pdf", show=False)
     # method_plots.plot_spirals_static_320(output_path="outputs/amplitude_spiral_320+.pdf", show=False)
@@ -1102,21 +1105,14 @@ def main_iter():
             method_plots.qnm_list += extra_qnm
             method_plots._initialize_results()
 
-            # Perform necessary computations
             method_plots.load_tuned_parameters()
             method_plots.compute_mf_chif()
             method_plots.compute_quantities()
-            method_plots.get_t0_ref_fits()
 
-            # Generate plots
             method_plots.plot_mismatch(output_path=f"outputs/mismatch_{id}_{extra_qnm}.pdf", show=False)
             method_plots.plot_log_likelihood(f"outputs/log_likelihood_mismatch_plot_{id}_{extra_qnm}.pdf", show=False)
             method_plots.plot_amplitude(output_path=f"outputs/amplitude_{id}_{extra_qnm}.pdf", show=False)
             method_plots.plot_significance(output_path=f"outputs/significance_{id}_{extra_qnm}.pdf", show=False)
-            method_plots.plot_fundamental_kde(output_path=f"outputs/fundamental_kde_{id}_{extra_qnm}.pdf", show=False)
-            method_plots.plot_overtone_kde(output_path=f"outputs/overtone_kde_{id}_{extra_qnm}.pdf", show=False)
-            method_plots.plot_mass_spin_corner(output_path=f"outputs/mass_spin_corner_{id}_{extra_qnm}.pdf", show=False)
-
-
+            
 if __name__ == "__main__":
     main()
