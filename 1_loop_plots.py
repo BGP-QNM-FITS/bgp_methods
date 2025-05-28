@@ -387,7 +387,7 @@ class MethodPlots:
         ax1.plot(self.T0s, self.weighted_mismatches_WN, label="WN", ls="--", color="k")
         ax1.fill_between(self.T0s, 0, self.weighted_mismatches_noise, color="grey", alpha=0.5)
         ax1.set_xlim(self.T0s[0], self.T0s[-1])
-        ax1.set_ylabel(r"$\mathcal{M}^{22}_K$")
+        ax1.set_ylabel(r"$\mathcal{M}_{\rm GP}$")
         ax1.set_yscale("log")
         ax1.legend(frameon=False, loc="upper right", labelspacing=0.1)
 
@@ -398,7 +398,7 @@ class MethodPlots:
         ax2.fill_between(self.T0s, 0, self.unweighted_mismatches_noise, color="grey", alpha=0.5)
         ax2.set_xlim(self.T0s[0], self.T0s[-1])
         ax2.set_xlabel("$t_0 [M]$")
-        ax2.set_ylabel(r"$\mathcal{M}^{22}$")
+        ax2.set_ylabel(r"$\mathcal{M}_{\rm WN}$")
         ax2.set_yscale("log")
         ax2.legend(frameon=False, loc="upper right", labelspacing=0.1)
 
@@ -1073,7 +1073,7 @@ def main():
         N_MAX=7,
         T=100,
         T0_REF=17,
-        num_samples=10000,
+        num_samples=1000,
         include_Mf=True,
         include_chif=True,
         use_nonlinear_params=False,

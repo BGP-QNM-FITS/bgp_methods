@@ -901,7 +901,7 @@ class MethodPlots2:
                 color=colors[0],
                 linestyle=ls,
                 linewidth=lw,
-                bw_adjust=2.0,  
+                bw_adjust=3.0,  
             )
 
             sns.kdeplot(
@@ -910,7 +910,7 @@ class MethodPlots2:
                 color=colors[1],
                 linestyle=ls,
                 linewidth=lw,
-                bw_adjust=2.0, 
+                bw_adjust=3.0, 
             )
 
             sns.kdeplot(
@@ -919,7 +919,7 @@ class MethodPlots2:
                 color=colors[2],
                 linestyle=ls,
                 linewidth=lw,
-                bw_adjust=2.0, 
+                bw_adjust=3.0, 
             )
             
 
@@ -930,9 +930,8 @@ class MethodPlots2:
             [real_freq_line, imag_freq_line, mixing_line],
             [r"Re($\omega_{\alpha}$)", r"Im($\omega_{\alpha}$)", r"$|\mu_{\alpha}^{\beta}|$"],
             frameon=False,
-            loc="upper right",
-            ncol=3,
-            fontsize=7,
+            loc="lower left",
+            ncol=1,
         )
         
         # Create a legend for line styles
@@ -945,25 +944,85 @@ class MethodPlots2:
             [solid_line, dashed_line, thin_solid_line, thin_dashed_line], 
             ["GP (ABD)", "WN (ABD)", "GP (nonlinear)", "WN (nonlinear)"],
             frameon=False,
-            loc="center right",
+            loc="upper right",
             ncol=1,
-            fontsize=7,
         )
         
         ax.set_xscale('log')
         ax.set_yscale('log')
-        ax.set_ylim(1e2, 1e8) 
-        #ax.set_xlim(0, 1e-4)
+        ax.set_ylim(1e2, 1e7) 
+        ax.set_xlim(1e-8, 1e-3)
 
         # Add both legends to the plot
         ax.add_artist(leg1)
         ax.add_artist(leg2)
+
+        ax.set_xlabel("Fractional error")
         
         plt.savefig(output_path, bbox_inches="tight")
         if show:
             plt.show()
         plt.close()
 
+    def ppc(self, output_path="outputs/ppc.pdf", show=False):
+        """
+        Generate posterior predictive checks.
+        """
+        fig, ax = plt.subplots(1, 1, figsize=(self.config.fig_width, self.config.fig_height))
+        fig2, ax2 = plt.subplots(1, 1, figsize=(self.config.fig_width, self.config.fig_height))
+        colors = self.custom_colormap2(np.linspace(0, 1, 2))
+
+        ax.plot(self.fit_GP.fit["analysis_times"], np.abs(self.fit_GP.fit["data_array_masked"][0].real), color="black", label="Data")
+
+        fits = [self.fit_GP, self.fit_WN]
+        fitnames = ["GP", "WN"]
+
+        for i, fit in enumerate(fits):
+            sample_models = np.zeros((min(100, len(fit.fit["samples"])), len(fit.fit["analysis_times"])), dtype=np.complex128)
+            chi_squareds = np.zeros(min(100, len(fit.fit["samples"])))
+            for j in range(min(100, len(fit.fit["samples"]))): 
+                theta_j = fit.fit["samples"][j,:]
+                sample_model = fit.get_model_linear(fit.fit["constant_term"], theta_j, fit.fit["ref_params"], fit.fit["model_terms"])
+                residual = fit.fit["data_array_masked"] - sample_model
+                chi_squared = np.einsum(
+                    "st,su,stu->",
+                    np.conj(residual),
+                    residual,
+                    fit.fit["inv_noise_covariance"],
+                )
+                chi_squareds[j] = chi_squared
+                sample_models[j, :] = np.abs(sample_model.real)
+
+            # Calculate min and max instead of percentiles
+            lower = np.min(sample_models, axis=0)
+            upper = np.max(sample_models, axis=0)
+            ax.fill_between(fit.fit["analysis_times"], lower, upper, color=colors[i], alpha=0.5, label=fitnames[i])
+
+            label = "GP" if i == 0 else "WN"
+            ax2.hist(chi_squareds, bins=50, alpha=0.7, color=colors[i], label=label)
+
+        ax2.set_xlabel("$\chi^2$")
+        ax2.set_ylabel("Frequency")
+        ax2.legend()
+        
+        # Add labels and title
+        ax.set_xlabel("Time (s)")
+        ax.set_ylabel("h")
+        ax.legend()
+
+        ax.set_xlim(17, 100) 
+        ax.set_yscale("log")
+
+        fig.savefig(output_path, bbox_inches="tight")
+        if show:
+            plt.show()
+        plt.close()
+
+        fig2.savefig(output_path.replace(".pdf", "_chi2.pdf"), bbox_inches="tight")
+        if show:
+            plt.figure(fig2.number)
+            plt.show()
+        plt.close(fig2)
 
 def main():
     method_plots = MethodPlots2(
@@ -971,9 +1030,9 @@ def main():
         N_MAX=6,
         T=100,
         T0_REF=17,
-        num_samples=int(1e4),
+        num_samples=int(1e3),
         #large_num_samples=int(7e6),
-        large_num_samples=int(1e4),
+        large_num_samples=int(1e1),
         include_Mf=True,
         include_chif=True,
     )
@@ -986,10 +1045,11 @@ def main():
     method_plots.compute_mf_chif()
     method_plots.get_t0_ref_fits()
 
-    method_plots.linear_approximation(output_path="outputs/linear_approximation.pdf", show=False)
-    method_plots.plot_fundamental_kde(output_path="outputs/fundamental_kde.pdf", show=False)
-    method_plots.plot_overtone_kde(output_path="outputs/overtone_kde.pdf", show=False)
-    method_plots.plot_mass_spin_corner(output_path="outputs/mass_spin_corner.pdf", show=False)
+    method_plots.ppc(output_path="outputs/ppc.pdf", show=False)
+    #method_plots.linear_approximation(output_path="outputs/linear_approximation.pdf", show=False)
+    #method_plots.plot_fundamental_kde(output_path="outputs/fundamental_kde.pdf", show=False)
+    #method_plots.plot_overtone_kde(output_path="outputs/overtone_kde.pdf", show=False)
+    #method_plots.plot_mass_spin_corner(output_path="outputs/mass_spin_corner.pdf", show=False)
 
 
 if __name__ == "__main__":

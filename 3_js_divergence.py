@@ -150,7 +150,7 @@ def js_divergence_figs():
         )
 
         ax.set_xlabel("Spherical Mode")
-        ax.set_ylabel(r"$\log_{10}(\mathrm{JSD})$")
+        ax.set_ylabel(r"$\log_{10}(\mathrm{KLD})$")
 
         ax.tick_params(axis="x", labelsize=8)
 
@@ -200,7 +200,7 @@ def js_divergence_histogram(sn_list_full, cn_list_full, sc_list_full):
         linewidth=0.5,
     )
 
-    ax.set_xlabel(r"$\log_{10}(\mathrm{JSD})$")
+    ax.set_xlabel(r"$\log_{10}(\mathrm{KLD})$")
     ax.set_ylabel("Frequency")
     ax.legend(frameon=False, loc="upper right", bbox_to_anchor=(1.02, 1))
     ax.grid(False)
