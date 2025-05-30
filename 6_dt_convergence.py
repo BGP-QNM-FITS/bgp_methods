@@ -158,15 +158,15 @@ HYPERPARAM_RULE_DICT_GPC = {
     "a": "replace",
 }
 
-dts = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 3, 4, 5] 
+dts = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 3, 4, 5] 
 
 
 ID = "0001"
 R = bgp.get_residual_data()
 param_dict = bgp.get_param_dict()
-sim_main = SXS_CCE(id, lev="Lev5", radius="R2")
+sim_main = SXS_CCE(ID, lev="Lev5", radius="R2")
 
-def get_hyperparameters_dt():
+def get_hyperparameters_dt(training_spherical_modes=TRAINING_SPH_MODES):
     hyperparameters_array_dt = np.zeros((len(dts), len(INITIAL_PARAMS_GP)))
 
     for i, dt in enumerate(dts):
@@ -186,14 +186,14 @@ def get_hyperparameters_dt():
             R_dict_interp,
             HYPERPARAM_RULE_DICT_GP,
             bgp.kernel_main,
-            TRAINING_SPH_MODES,
+            training_spherical_modes,
             SIM_TRAINING_MODE_RULES,
         )
 
         hyperparameters_array_dt[i, :] = hyperparam_list
+    
+    return hyperparameters_array_dt
 
-    with open("hyperparameters_array_dt.pkl", "wb") as f:
-        pickle.dump(hyperparameters_array_dt, f)
 
 def plot_hyperparameters_dt(hyperparameters_array_dt):
 
@@ -265,7 +265,16 @@ def plot_parameters_dt():
 
 
 if __name__ == "__main__":
-    #get_hyperparameters_dt()
+
+    hyperparameters_array_dt = get_hyperparameters_dt()
+
+    with open("hyperparameters_array_dt.pkl", "wb") as f:
+        pickle.dump(hyperparameters_array_dt, f)
+
+    for mode in [(2,2), (4,4)]:
+        hyperparameters_array_dt = get_hyperparameters_dt(training_spherical_modes=[mode])
+        with open(f"hyperparameters_array_dt_{mode}.pkl", "wb") as f:
+            pickle.dump(hyperparameters_array_dt, f)
 
     with open("hyperparameters_array_dt.pkl", "rb") as f:
         hyperparameters_array_dt = pickle.load(f)

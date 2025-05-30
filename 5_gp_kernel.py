@@ -20,10 +20,7 @@ TIME_STEP = 0.1
 analysis_times = np.arange(TRAINING_START_TIME, TRAINING_START_TIME + TRAINING_END_TIME, TIME_STEP)
 
 R = bgp.get_residual_data()[id]
-
-tuned_params_WN = bgp.get_param_data("WN")[id]
-tuned_params = bgp.get_param_data("GP")[id]
-tuned_params_GPC = bgp.get_param_data("GPc")[id]
+#tuned_params = bgp.get_param_data("GP")[id]
 
 HYPERPARAM_RULE_DICT_GP = {
     "sigma_max": "multiply",
@@ -32,9 +29,9 @@ HYPERPARAM_RULE_DICT_GP = {
     "period": "multiply",
 }
 param_dict = bgp.get_param_dict()[id]
-hyperparams = [0.1, 22.86536401, 1.13781152, 0.2583172]
+hyperparams = [0.7, 17.86536401, 1.13781152, 0.2583172]
 
-# tuned_params = bgp.get_tuned_params(param_dict, hyperparams, HYPERPARAM_RULE_DICT_GP, spherical_modes=None)
+tuned_params = bgp.get_tuned_params(param_dict, hyperparams, HYPERPARAM_RULE_DICT_GP, spherical_modes=None)
 
 spherical_modes = [(2, 2), (3, 2), (4, 4)]
 
@@ -106,7 +103,7 @@ for i, (ell, m) in enumerate(spherical_modes):
     )
 
     axs[i].set_title(rf"$\beta = ({ell}, {m})$")
-    axs[i].set_xlim(0, 90)
+    #axs[i].set_xlim(0, 90)
     axs[i].set_ylabel(r"$\mathfrak{r}^{\beta}_{i} \,\, [M]$")
 
 solid_line = Line2D([0], [0], color="black", linestyle="-")
