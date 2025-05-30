@@ -22,7 +22,7 @@ analysis_times = np.arange(TRAINING_START_TIME, TRAINING_START_TIME + TRAINING_E
 R = bgp.get_residual_data()[id]
 
 tuned_params_WN = bgp.get_param_data("WN")[id]
-tuned_params = bgp.get_param_data("GP")[id] 
+tuned_params = bgp.get_param_data("GP")[id]
 tuned_params_GPC = bgp.get_param_data("GPc")[id]
 
 HYPERPARAM_RULE_DICT_GP = {
@@ -34,17 +34,15 @@ HYPERPARAM_RULE_DICT_GP = {
 param_dict = bgp.get_param_dict()[id]
 hyperparams = [0.1, 22.86536401, 1.13781152, 0.2583172]
 
-#tuned_params = bgp.get_tuned_params(param_dict, hyperparams, HYPERPARAM_RULE_DICT_GP, spherical_modes=None)
+# tuned_params = bgp.get_tuned_params(param_dict, hyperparams, HYPERPARAM_RULE_DICT_GP, spherical_modes=None)
 
 spherical_modes = [(2, 2), (3, 2), (4, 4)]
 
 kernel_dict = {
-        mode: bgp.compute_kernel_matrix(analysis_times, tuned_params[mode], bgp.kernel_main) for mode in spherical_modes
-    }
+    mode: bgp.compute_kernel_matrix(analysis_times, tuned_params[mode], bgp.kernel_main) for mode in spherical_modes
+}
 
-fig, axs = plt.subplots(
-    len(spherical_modes), 1, sharex=True, figsize=(config.fig_width, config.fig_height * 2)
-)
+fig, axs = plt.subplots(len(spherical_modes), 1, sharex=True, figsize=(config.fig_width, config.fig_height * 2))
 
 custom_colormap = LinearSegmentedColormap.from_list("custom_colormap2", config.colors2)
 colors = custom_colormap(np.linspace(0, 1, 3))
@@ -52,12 +50,15 @@ colors = custom_colormap(np.linspace(0, 1, 3))
 for i, (ell, m) in enumerate(spherical_modes):
 
     axs[i].plot(
-        analysis_times, np.real(R[ell, m]),
+        analysis_times,
+        np.real(R[ell, m]),
         color=colors[i],
     )
     axs[i].plot(
-        analysis_times, np.imag(R[ell, m]),
-        color=colors[i], ls=":",
+        analysis_times,
+        np.imag(R[ell, m]),
+        color=colors[i],
+        ls=":",
     )
 
     # Plot a line segment to indicate the size of 1 x axis unit
@@ -65,7 +66,7 @@ for i, (ell, m) in enumerate(spherical_modes):
     period_length = tuned_params[(ell, m)]["period"]
 
     y_pos = np.min(np.real(R[ell, m])) + 0.7 * np.ptp(np.real(R[ell, m]))
-    
+
     axs[i].plot(
         [40, 40 + period_length],
         [y_pos, y_pos],
@@ -112,15 +113,15 @@ solid_line = Line2D([0], [0], color="black", linestyle="-")
 dotted_line = Line2D([0], [0], color="black", linestyle=":")
 
 line_legend = axs[-1].legend(
-                [solid_line, dotted_line],
-                [r"$\rm Re(\mathfrak{r}^{\beta}_{i})$", r"$\rm Im(\mathfrak{r}^{\beta}_{i})$"],
-                frameon=False,
-                ncol=2,
-                loc="lower left", 
-                bbox_to_anchor=(0.05, -0.75),
-                columnspacing=0.9, 
-                handletextpad=0.5,
-            )
+    [solid_line, dotted_line],
+    [r"$\rm Re(\mathfrak{r}^{\beta}_{i})$", r"$\rm Im(\mathfrak{r}^{\beta}_{i})$"],
+    frameon=False,
+    ncol=2,
+    loc="lower left",
+    bbox_to_anchor=(0.05, -0.75),
+    columnspacing=0.9,
+    handletextpad=0.5,
+)
 axs[-1].add_artist(line_legend)
 axs[-1].legend(frameon=False, loc="lower right", ncol=1, bbox_to_anchor=(0.93, -0.75))
 axs[-1].set_xlabel("$t \,\, [M]$")

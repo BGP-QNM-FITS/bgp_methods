@@ -34,7 +34,7 @@ class MethodPlots:
         include_Mf=True,
         include_chif=True,
         use_nonlinear_params=False,
-        decay_corrected=False 
+        decay_corrected=False,
     ):
         self.id = id
         self.N_MAX = N_MAX
@@ -235,7 +235,6 @@ class MethodPlots:
 
         return fits_LS, main_data_masked, lower_data_masked
 
-
     def compute_quantities(self):
 
         fits_LS, main_data_masked, lower_data_masked = self._compute_LS_fits()
@@ -279,7 +278,6 @@ class MethodPlots:
         )
 
         self._store_results(fits_GP.fits, fits_WN.fits, fits_LS, main_data_masked, lower_data_masked)
-
 
     def _store_results(self, fit_GP, fit_WN, fit_LS, main_data, lower_data):
         """
@@ -454,9 +452,9 @@ class MethodPlots:
         colors = self.custom_colormap(np.linspace(0, 1, len(self.qnm_list)))
 
         for i, qnm in enumerate(self.qnm_list):
-            #decay_time = qnmfits.qnm.omega_list([qnm], self.chif_mag_ref, self.Mf_ref)[0].imag
-            #closest_time_index = np.argmin(np.abs(self.T0s - 0))
-            #C_tau = np.exp(decay_time * (self.T0s[closest_time_index] - self.T0s))
+            # decay_time = qnmfits.qnm.omega_list([qnm], self.chif_mag_ref, self.Mf_ref)[0].imag
+            # closest_time_index = np.argmin(np.abs(self.T0s - 0))
+            # C_tau = np.exp(decay_time * (self.T0s[closest_time_index] - self.T0s))
             ax.plot(
                 self.T0s,
                 self.amplitudes_GP_percentiles[0.5][:, i],
@@ -1077,7 +1075,7 @@ def main():
         include_Mf=True,
         include_chif=True,
         use_nonlinear_params=False,
-        decay_corrected=True
+        decay_corrected=True,
     )
 
     # method_plots.qnm_list += [(3,2,0,1)]
@@ -1113,6 +1111,7 @@ def main_iter():
             method_plots.plot_log_likelihood(f"outputs/log_likelihood_mismatch_plot_{id}_{extra_qnm}.pdf", show=False)
             method_plots.plot_amplitude(output_path=f"outputs/amplitude_{id}_{extra_qnm}.pdf", show=False)
             method_plots.plot_significance(output_path=f"outputs/significance_{id}_{extra_qnm}.pdf", show=False)
-            
+
+
 if __name__ == "__main__":
     main()
