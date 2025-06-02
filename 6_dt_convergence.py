@@ -150,7 +150,7 @@ HYPERPARAM_RULE_DICT_GP = {
 HYPERPARAM_RULE_DICT_GPC = {
     "sigma_max": "multiply",
     "t_s": "sum",
-    "sharpness": "replace",
+    "smoothness": "replace",
     "length_scale": "multiply",
     "period": "multiply",
     "length_scale_2": "multiply",
@@ -158,8 +158,7 @@ HYPERPARAM_RULE_DICT_GPC = {
     "a": "replace",
 }
 
-dts = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 3, 4, 5] 
-
+dts = [5, 4, 3, 2, 1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.35, 0.3, 0.25, 0.2, 0.15, 0.1]
 
 ID = "0001"
 R = bgp.get_residual_data()
@@ -185,7 +184,7 @@ def get_hyperparameters_dt(training_spherical_modes=TRAINING_SPH_MODES):
             param_dict,
             R_dict_interp,
             HYPERPARAM_RULE_DICT_GP,
-            bgp.kernel_main,
+            bgp.kernel_GP,
             training_spherical_modes,
             SIM_TRAINING_MODE_RULES,
         )
@@ -223,7 +222,7 @@ def plot_hyperparameters_dt(hyperparameters_array_dt):
     plt.subplots_adjust(hspace=0.02)
     
     # Make sure x-axis ticks appear only on the bottom plot
-    plt.setp(ax2.get_xticklabels(), visible=False)
+    plt.setp(ax1.get_xticklabels(), visible=False)
     
     plt.tight_layout()
     fig.savefig("outputs/hyperparameters_dt.pdf", dpi=600, bbox_inches="tight")
@@ -251,7 +250,7 @@ def plot_parameters_dt():
                 sim_main.Mf,
                 sim_main.chif_mag,
                 tuned_param_dict_GP,
-                bgp.kernel_main,
+                bgp.kernel_GP,
                 t0=T0_REF,
                 num_samples=int(1e6),
                 t0_method="geq",

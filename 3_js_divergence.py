@@ -93,13 +93,13 @@ def js_divergence_figs():
         for sph_mode in spherical_mode_choice:
 
             kernel_matrix_WN = bgp.compute_kernel_matrix(
-                analysis_times, tuned_param_dict_WN[sim_id][sph_mode], bgp.kernel_s
+                analysis_times, tuned_param_dict_WN[sim_id][sph_mode], bgp.kernel_WN
             )
             kernel_matrix_GP = bgp.compute_kernel_matrix(
-                analysis_times, tuned_param_dict_GP[sim_id][sph_mode], bgp.kernel_main
+                analysis_times, tuned_param_dict_GP[sim_id][sph_mode], bgp.kernel_GP
             )
             kernel_matrix_GPC = bgp.compute_kernel_matrix(
-                analysis_times, tuned_param_dict_GPC[sim_id][sph_mode], bgp.kernel_c
+                analysis_times, tuned_param_dict_GPC[sim_id][sph_mode], bgp.kernel_GPC
             )
 
             kl_div_sn = bgp.js_divergence(kernel_matrix_WN, kernel_matrix_GP)

@@ -29,7 +29,7 @@ HYPERPARAM_RULE_DICT_GP = {
     "period": "multiply",
 }
 param_dict = bgp.get_param_dict()[id]
-hyperparams = [1.6946993364162282, 6.390204834774238, 1.058895602972463, 0.4555524214740511]
+hyperparams = [0.6, 12, 0.85, 0.4]
 
 tuned_params = bgp.get_tuned_params(param_dict, hyperparams, HYPERPARAM_RULE_DICT_GP, spherical_modes=None)
 
@@ -48,17 +48,24 @@ for i, (ell, m) in enumerate(spherical_modes):
 
     axs[i].plot(
         analysis_times,
-        np.real(R[ell, m]),
+        np.abs(np.real(R[ell, m])),
         color=colors[i],
     )
     axs[i].plot(
         analysis_times,
-        np.imag(R[ell, m]),
+        np.abs(np.imag(R[ell, m])),
         color=colors[i],
         ls=":",
     )
 
-    # Plot a line segment to indicate the size of 1 x axis unit
+    axs[i].fill_between(
+        analysis_times,
+        -np.sqrt(np.diag(kernel_dict[ell, m])),
+        np.sqrt(np.diag(kernel_dict[ell, m])),
+        color="k",
+        alpha=0.2,
+        label=r"1$\sigma$",
+    )
 
     period_length = tuned_params[(ell, m)]["period"]
 
@@ -85,26 +92,11 @@ for i, (ell, m) in enumerate(spherical_modes):
         ],
         "k-",
     )
-    axs[i].text(
-        40 + period_length / 2,
-        y_pos + 0.14 * np.ptp(np.real(R[ell, m])),
-        r"$P^{\beta}_i$",
-        ha="center",
-        fontsize=7,
-    )
-
-    axs[i].fill_between(
-        analysis_times,
-        -np.sqrt(np.diag(kernel_dict[ell, m])),
-        np.sqrt(np.diag(kernel_dict[ell, m])),
-        color="k",
-        alpha=0.2,
-        label=r"1$\sigma$",
-    )
 
     axs[i].set_title(rf"$\beta = ({ell}, {m})$")
-    axs[i].set_xlim(0, 80)
+    axs[i].set_xlim(0, 100)
     axs[i].set_ylabel(r"$\mathfrak{r}^{\beta}_{i} \,\, [M]$")
+    axs[i].set_yscale("log")
 
 solid_line = Line2D([0], [0], color="black", linestyle="-")
 dotted_line = Line2D([0], [0], color="black", linestyle=":")
@@ -123,4 +115,4 @@ axs[-1].add_artist(line_legend)
 axs[-1].legend(frameon=False, loc="lower right", ncol=1, bbox_to_anchor=(0.93, -0.75))
 axs[-1].set_xlabel("$t \,\, [M]$")
 
-fig.savefig("outputs/credible_regions.pdf", dpi=600, bbox_inches="tight")
+fig.savefig("outputs/credible_regions_log.pdf", dpi=600, bbox_inches="tight")
