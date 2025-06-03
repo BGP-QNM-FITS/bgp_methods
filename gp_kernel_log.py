@@ -18,6 +18,7 @@ TRAINING_END_TIME = 100
 TIME_STEP = 0.1
 
 analysis_times = np.arange(TRAINING_START_TIME, TRAINING_START_TIME + TRAINING_END_TIME, TIME_STEP)
+analysis_times_2 = np.arange(TRAINING_START_TIME, TRAINING_START_TIME + TRAINING_END_TIME + 100, TIME_STEP)
 
 R = bgp.get_residual_data()[id]
 #tuned_params = bgp.get_param_data("GP")[id]
@@ -29,14 +30,14 @@ HYPERPARAM_RULE_DICT_GP = {
     "period": "multiply",
 }
 param_dict = bgp.get_param_dict()[id]
-hyperparams = [0.6, 12, 0.85, 0.4]
+hyperparams = [1.6946993364162282, 6.390204834774238, 1.058895602972463, 0.4555524214740511]
 
 tuned_params = bgp.get_tuned_params(param_dict, hyperparams, HYPERPARAM_RULE_DICT_GP, spherical_modes=None)
 
 spherical_modes = [(2, 2), (3, 2), (4, 4)]
 
 kernel_dict = {
-    mode: bgp.compute_kernel_matrix(analysis_times, tuned_params[mode], bgp.kernel_GP) for mode in spherical_modes
+    mode: bgp.compute_kernel_matrix(analysis_times_2, tuned_params[mode], bgp.kernel_GP) for mode in spherical_modes
 }
 
 fig, axs = plt.subplots(len(spherical_modes), 1, sharex=True, figsize=(config.fig_width, config.fig_height * 2))
@@ -59,7 +60,7 @@ for i, (ell, m) in enumerate(spherical_modes):
     )
 
     axs[i].fill_between(
-        analysis_times,
+        analysis_times_2,
         -np.sqrt(np.diag(kernel_dict[ell, m])),
         np.sqrt(np.diag(kernel_dict[ell, m])),
         color="k",
@@ -94,7 +95,7 @@ for i, (ell, m) in enumerate(spherical_modes):
     )
 
     axs[i].set_title(rf"$\beta = ({ell}, {m})$")
-    axs[i].set_xlim(0, 100)
+    axs[i].set_xlim(0, analysis_times_2[-1])
     axs[i].set_ylabel(r"$\mathfrak{r}^{\beta}_{i} \,\, [M]$")
     axs[i].set_yscale("log")
 

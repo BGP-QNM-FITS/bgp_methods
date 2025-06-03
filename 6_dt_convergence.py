@@ -168,6 +168,8 @@ sim_main = SXS_CCE(ID, lev="Lev5", radius="R2")
 def get_hyperparameters_dt(training_spherical_modes=TRAINING_SPH_MODES):
     hyperparameters_array_dt = np.zeros((len(dts), len(INITIAL_PARAMS_GP)))
 
+    initial_params = INITIAL_PARAMS_GP
+
     for i, dt in enumerate(dts):
 
         print(f"dt = {dt}")
@@ -179,7 +181,7 @@ def get_hyperparameters_dt(training_spherical_modes=TRAINING_SPH_MODES):
             TRAINING_START_TIME,
             TRAINING_END_TIME,
             dt,
-            INITIAL_PARAMS_GP,
+            initial_params,
             BOUNDS_GP,
             param_dict,
             R_dict_interp,
@@ -190,6 +192,8 @@ def get_hyperparameters_dt(training_spherical_modes=TRAINING_SPH_MODES):
         )
 
         hyperparameters_array_dt[i, :] = hyperparam_list
+
+        initial_params = hyperparam_list
     
     return hyperparameters_array_dt
 
@@ -215,8 +219,8 @@ def plot_hyperparameters_dt(hyperparameters_array_dt):
     ax2.set_xlabel("dt")
     ax2.legend(loc = "upper right", ncol=3)
 
-    ax1.set_xlim(dts[0], dts[-1])
-    ax2.set_xlim(dts[0], dts[-1])
+    ax1.set_xlim(dts[-1], dts[0])
+    ax2.set_xlim(dts[-1], dts[0])
 
     # Reduce space between subplots
     plt.subplots_adjust(hspace=0.02)

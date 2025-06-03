@@ -28,7 +28,7 @@ class MethodPlots2:
         id,
         N_MAX=7,
         T=100,
-        T0=np.linspace(5,5.4,20),
+        T0=np.linspace(-3,0,5),
         num_samples=10000,
         include_Mf=True,
         include_chif=True,
@@ -168,7 +168,7 @@ class MethodPlots2:
 def main():
     method_plots = MethodPlots2(
         id="0001",
-        N_MAX=3,
+        N_MAX=6,
         T=100,
         num_samples=int(1e3),
         include_Mf=True,

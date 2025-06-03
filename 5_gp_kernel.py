@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+import pickle as pickle
 from matplotlib.ticker import LogFormatter
 from matplotlib.colors import LinearSegmentedColormap
 from plot_config import PlotConfig
@@ -29,7 +30,11 @@ HYPERPARAM_RULE_DICT_GP = {
     "period": "multiply",
 }
 param_dict = bgp.get_param_dict()[id]
-hyperparams = [1.6946993364162282, 6.390204834774238, 1.058895602972463, 0.4555524214740511]
+
+with open("hyperparameters_array_dt.pkl", "rb") as f:
+    hyperparameters_array_dt = pickle.load(f)
+
+hyperparams = hyperparameters_array_dt[-1, :]
 
 tuned_params = bgp.get_tuned_params(param_dict, hyperparams, HYPERPARAM_RULE_DICT_GP, spherical_modes=None)
 
