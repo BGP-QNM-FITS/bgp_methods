@@ -1,16 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
-import pickle as pickle
-from matplotlib.ticker import LogFormatter
+import bgp_qnm_fits as bgp
+
 from matplotlib.colors import LinearSegmentedColormap
 from plot_config import PlotConfig
 from matplotlib.lines import Line2D
 
 config = PlotConfig()
 config.apply_style()
-
-import bgp_qnm_fits as bgp
 
 id = "0001"
 
@@ -21,22 +18,7 @@ TIME_STEP = 0.1
 analysis_times = np.arange(TRAINING_START_TIME, TRAINING_START_TIME + TRAINING_END_TIME, TIME_STEP)
 
 R = bgp.get_residual_data()[id]
-#tuned_params = bgp.get_param_data("GP")[id]
-
-HYPERPARAM_RULE_DICT_GP = {
-    "sigma_max": "multiply",
-    "t_s": "sum",
-    "length_scale": "multiply",
-    "period": "multiply",
-}
-param_dict = bgp.get_param_dict()[id]
-
-with open("hyperparameters_array_dt.pkl", "rb") as f:
-    hyperparameters_array_dt = pickle.load(f)
-
-hyperparams = hyperparameters_array_dt[-1, :]
-
-tuned_params = bgp.get_tuned_params(param_dict, hyperparams, HYPERPARAM_RULE_DICT_GP, spherical_modes=None)
+tuned_params = bgp.get_param_data("GP")[id]
 
 spherical_modes = [(2, 2), (3, 2), (4, 4)]
 
@@ -63,8 +45,6 @@ for i, (ell, m) in enumerate(spherical_modes):
         ls=":",
     )
 
-    # Plot a line segment to indicate the size of 1 x axis unit
-
     period_length = tuned_params[(ell, m)]["period"]
 
     y_pos = np.min(np.real(R[ell, m])) + 0.7 * np.ptp(np.real(R[ell, m]))
@@ -75,7 +55,7 @@ for i, (ell, m) in enumerate(spherical_modes):
         "k-",
     )
     axs[i].plot(
-        [39.8, 39.8],
+        [39.9, 39.9],
         [
             y_pos - 0.03 * np.ptp(np.real(R[ell, m])),
             y_pos + 0.03 * np.ptp(np.real(R[ell, m])),
@@ -83,7 +63,7 @@ for i, (ell, m) in enumerate(spherical_modes):
         "k-",
     )
     axs[i].plot(
-        [40.2 + period_length, 40.2 + period_length],
+        [40.1 + period_length, 40.1 + period_length],
         [
             y_pos - 0.03 * np.ptp(np.real(R[ell, m])),
             y_pos + 0.03 * np.ptp(np.real(R[ell, m])),

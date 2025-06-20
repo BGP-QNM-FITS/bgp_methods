@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
-import jax.numpy as jnp
 from matplotlib.ticker import LogFormatter
 from matplotlib.colors import LinearSegmentedColormap
 from plot_config import PlotConfig
@@ -9,8 +8,10 @@ from plot_config import PlotConfig
 config = PlotConfig()
 config.apply_style()
 
+
 def smoothmax(x, x_max, smoothness):
-    return (x + x_max - np.sqrt((x - x_max) ** 2 + smoothness*x_max**2)) * 0.5
+    return (x + x_max - np.sqrt((x - x_max) ** 2 + smoothness * x_max**2)) * 0.5
+
 
 x = np.linspace(-5, 100, 10000)
 smoothness = np.logspace(-3, -1, 10)
@@ -31,7 +32,6 @@ ax.set_xlim(0, 2)
 ax.set_ylim(0, 1.15)
 ax.set_aspect("equal")
 ax.axhline(x_max, c="k", alpha=0.5, lw=1, ls="--")
-# ax.text(1.71, x_min + 0.08, r"$x_{\rm min}$", va="center", ha="left", c="k", alpha=0.5)
 ax.text(0.05, x_max + 0.08, r"$x_{\rm max}$", va="center", ha="left", c="k", alpha=0.5)
 ax.legend(frameon=False, loc="lower right")
 

@@ -196,46 +196,8 @@ class MethodPlots2:
             include_Mf=self.include_Mf,
         )
 
-        ref_fit_WN_NL = bgp.BGP_fit(
-            self.sim_main.times,
-            self.sim_main.h,
-            self.qnm_list,
-            self.Mf_ref,
-            self.chif_mag_ref,
-            self.tuned_param_dict_WN,
-            bgp.kernel_WN,
-            t0=self.T0_REF,
-            use_nonlinear_params=True,
-            num_samples=self.num_samples,
-            t0_method="geq",
-            T=self.T,
-            spherical_modes=self.spherical_modes,
-            include_chif=self.include_chif,
-            include_Mf=self.include_Mf,
-        )
-
-        ref_fit_GP_NL = bgp.BGP_fit(
-            self.sim_main.times,
-            self.sim_main.h,
-            self.qnm_list,
-            self.Mf_ref,
-            self.chif_mag_ref,
-            self.tuned_param_dict_GP,
-            bgp.kernel_GP,
-            t0=self.T0_REF,
-            use_nonlinear_params=True,
-            num_samples=self.num_samples,
-            t0_method="geq",
-            T=self.T,
-            spherical_modes=self.spherical_modes,
-            include_chif=self.include_chif,
-            include_Mf=self.include_Mf,
-        )
-
         self.fit_WN = ref_fit_WN
         self.fit_GP = ref_fit_GP
-        self.fit_WN_NL = ref_fit_WN_NL
-        self.fit_GP_NL = ref_fit_GP_NL
 
         self.ref_params = []
         for re_c, im_c in zip(np.real(ref_fit_LS["C"]), np.imag(ref_fit_LS["C"])):
@@ -245,9 +207,6 @@ class MethodPlots2:
         self.ref_samples_WN = ref_fit_WN.fit["samples"]
         self.ref_samples_GP = ref_fit_GP.fit["samples"]
 
-        self.ref_samples_WN_NL = ref_fit_WN_NL.fit["samples"]
-        self.ref_samples_GP_NL = ref_fit_GP_NL.fit["samples"]
-
         self.samples_abs_WN = ref_fit_WN_large_sample.fit["sample_amplitudes"]
         self.samples_abs_GP = ref_fit_GP_large_sample.fit["sample_amplitudes"]
         self.samples_weights_WN = ref_fit_WN_large_sample.fit["samples_weights"]
@@ -255,8 +214,6 @@ class MethodPlots2:
 
         self.residual_WN = np.zeros((len(ref_fit_WN.fit["analysis_times"])))
         self.residual_GP = np.zeros((len(ref_fit_GP.fit["analysis_times"])))
-
-        mode_index = self.spherical_modes.index((2, 2))
 
         self.model_times_WN = ref_fit_WN.fit["analysis_times"]
         self.model_times_GP = ref_fit_GP.fit["analysis_times"]
@@ -325,13 +282,13 @@ class MethodPlots2:
 
         # Adjust the linewidth of the KDE plots
         for collection in g.ax_joint.collections:
-            collection.set_linewidth(1.5)  # Set the desired linewidth
+            collection.set_linewidth(1.5)
 
         # Adjust the linewidth of the KDE plots in the marginal plots
         for line in g.ax_marg_x.lines:
-            line.set_linewidth(1.5)  # Set the desired linewidth
+            line.set_linewidth(1.5)
         for line in g.ax_marg_y.lines:
-            line.set_linewidth(1.5)  # Set the desired linewidth
+            line.set_linewidth(1.5)
 
         sns.kdeplot(
             df_samples_fundamental_WN[labels[0]],
@@ -377,8 +334,8 @@ class MethodPlots2:
             elif collection.get_facecolor().size:
                 color = to_hex(collection.get_facecolor()[0])
             if color == self.fundamental_color_WN:
-                collection.set_linestyle("--")  # Set linestyle to dashed for WN
-                collection.set_linewidth(1.5)  # Set linewidth for WN contours
+                collection.set_linestyle("--")
+                collection.set_linewidth(1.5)
 
         # Add inset plot
         ax_inset = inset_axes(
@@ -409,15 +366,6 @@ class MethodPlots2:
             linewidth=1.5,
             ax=ax_inset,
         )
-        sns.kdeplot(
-            data=df_samples_abs_fundamental_WN,
-            x="Amplitude",
-            color=self.fundamental_color_WN,
-            linestyle="--",
-            linewidth=1.5,
-            label="WN (Prior 1)",
-            ax=ax_inset,
-        )
 
         sns.kdeplot(
             data=df_samples_abs_fundamental_GP,
@@ -428,20 +376,9 @@ class MethodPlots2:
             weights="Weight",
             ax=ax_inset,
         )
-        sns.kdeplot(
-            data=df_samples_abs_fundamental_WN,
-            x="Amplitude",
-            color=self.fundamental_color_WN,
-            label="WN (Prior 2)",
-            linestyle="--",
-            linewidth=0.5,
-            weights="Weight",
-            ax=ax_inset,
-        )
 
         ax_inset.set_title(r"$|C_{\alpha}|$", fontsize=8)
-        # ax_inset.set_xlim(0.19, 0.23)
-        # ax_inset.set_ylim(0.0, 300)
+        ax_inset.set_xlim(0.2245, 0.234)
         ax_inset.set_ylabel("")
         ax_inset.set_xlabel("")
         ax_inset.set_yticklabels([])
@@ -470,11 +407,11 @@ class MethodPlots2:
             loc="upper left",
             frameon=False,
             ncol=1,
-            fontsize=4,
+            fontsize=5,
         )
 
-        # g.ax_joint.set_xlim(-0.175, -0.135)
-        g.ax_joint.set_ylim(0.01, 0.065)
+        g.ax_joint.set_xlim(-0.245, -0.205)
+        g.ax_joint.set_ylim(0.02, 0.06)
 
         line_styles = [
             Line2D(
@@ -499,7 +436,7 @@ class MethodPlots2:
             handles=line_styles,
             loc="upper left",
             frameon=False,
-            bbox_to_anchor=(0.22, 0.84),
+            bbox_to_anchor=(0.19, 0.84),
             ncol=1,
             fontsize=7,
         )
@@ -555,13 +492,13 @@ class MethodPlots2:
 
         # Adjust the linewidth of the KDE plots in the joint plot
         for collection in g.ax_joint.collections:
-            collection.set_linewidth(1.5)  # Set the desired linewidth
+            collection.set_linewidth(1.5)
 
         # Adjust the linewidth of the KDE plots in the marginal plots
         for line in g.ax_marg_x.lines:
-            line.set_linewidth(1.5)  # Set the desired linewidth
+            line.set_linewidth(1.5)
         for line in g.ax_marg_y.lines:
-            line.set_linewidth(1.5)  # Set the desired linewidth
+            line.set_linewidth(1.5)
 
         sns.kdeplot(
             df_samples_overtone_WN[labels[0]],
@@ -607,8 +544,8 @@ class MethodPlots2:
             elif collection.get_facecolor().size:
                 color = to_hex(collection.get_facecolor()[0])
             if color == self.overtone_color_WN:
-                collection.set_linestyle("--")  # Set linestyle to dashed for WN
-                collection.set_linewidth(1.5)  # Set linewidth for WN contours
+                collection.set_linestyle("--")
+                collection.set_linewidth(1.5)
 
         g.ax_joint.axvline(0, color="black", linestyle=":", linewidth=1)
         g.ax_joint.axhline(0, color="black", linestyle=":", linewidth=1)
@@ -657,15 +594,6 @@ class MethodPlots2:
             label="GP (Prior 1)",
             ax=ax_inset,
         )
-        sns.kdeplot(
-            data=df_samples_abs_overtone_WN,
-            x="Amplitude",
-            color=self.overtone_color_WN,
-            linestyle="--",
-            linewidth=1.5,
-            label="WN (Prior 1)",
-            ax=ax_inset,
-        )
 
         sns.kdeplot(
             data=df_samples_abs_overtone_GP,
@@ -676,19 +604,9 @@ class MethodPlots2:
             weights="Weight",
             ax=ax_inset,
         )
-        sns.kdeplot(
-            data=df_samples_abs_overtone_WN,
-            x="Amplitude",
-            color=self.overtone_color_WN,
-            label="WN (Prior 2)",
-            linestyle="--",
-            linewidth=0.5,
-            weights="Weight",
-            ax=ax_inset,
-        )
 
         ax_inset.set_title(r"$|C_{\alpha}|$", fontsize=8)
-        ax_inset.set_xlim(0, 2)
+        ax_inset.set_xlim(0, 0.45)
         # ax_inset.set_ylim(0, 2.5)
         ax_inset.set_ylabel("")
         ax_inset.set_xlabel("")
@@ -706,10 +624,11 @@ class MethodPlots2:
             loc="upper right",
             frameon=False,
             ncol=1,
-            fontsize=6,
+            fontsize=5,
         )
 
-        g.ax_joint.set_ylim(-4, 2)
+        g.ax_joint.set_xlim(-1, 1.5)
+        g.ax_joint.set_ylim(-1.75, 1)
 
         line_styles = [
             Line2D(
@@ -734,7 +653,7 @@ class MethodPlots2:
             handles=line_styles,
             loc="upper left",
             frameon=False,
-            bbox_to_anchor=(0.22, 0.84),
+            bbox_to_anchor=(0.19, 0.84),
             ncol=1,
             fontsize=7,
         )
@@ -808,17 +727,17 @@ class MethodPlots2:
                 collection.set_linestyle("--")  # Set linestyle to dashed for WN
 
         # Add vertical and horizontal dotted lines at the truth values
-        g.ax_joint.plot(self.chif_t0, self.Mf_t0, "*", color="#DE6A5E", markersize=10)
-        g.ax_joint.plot(self.chif_mag_ref, self.Mf_ref, "x", color="#DE6A5E", markersize=10)
+        g.ax_joint.plot(self.chif_t0, self.Mf_t0, "*", color="#DE6A5E", markersize=8)
+        g.ax_joint.plot(self.chif_mag_ref, self.Mf_ref, marker=(4, 2, 90), color="#DE6A5E", markersize=8)
 
         # Add legend for the truth values
         g.ax_joint.legend(loc="upper right", frameon=False)
 
         # Add labels
-        g.set_axis_labels(r"$\chi_f$", r"$M_f$")
+        g.set_axis_labels(r"$\chi_f$", r"$M_f \, [M]$")
 
-        g.ax_joint.set_xlim(0.665, 0.71)
-        g.ax_joint.set_ylim(0.937, 0.97)
+        g.ax_joint.set_xlim(0.675, 0.7)
+        g.ax_joint.set_ylim(0.945, 0.962)
 
         line_styles = [
             Line2D([0], [0], color=self.fundamental_color_GP, linestyle="-", label="GP"),
@@ -843,8 +762,8 @@ class MethodPlots2:
         fig, ax = plt.subplots(1, 1, figsize=(self.config.fig_width, self.config.fig_height))
         colors = self.custom_colormap2(np.linspace(0, 1, 3))
 
-        fits = [self.fit_GP, self.fit_WN, self.fit_GP_NL, self.fit_WN_NL]
-        fitnames = ["GP", "WN", "GP_NL", "WN_NL"]
+        fits = [self.fit_GP, self.fit_WN]
+        fitnames = ["GP", "WN"]
 
         ell, m, n, sign = (2, 2, 0, 1)  # Note this is currently hardcoded below!!
         ellp, mp = (2, 2)
@@ -894,12 +813,6 @@ class MethodPlots2:
             elif fitname == "WN":
                 ls = "--"
                 lw = 1.0
-            elif fitname == "GP_NL":
-                ls = "-"
-                lw = 0.5
-            elif fitname == "WN_NL":
-                ls = "--"
-                lw = 0.5
 
             sns.kdeplot(
                 real_freq_deviations,
@@ -907,7 +820,7 @@ class MethodPlots2:
                 color=colors[0],
                 linestyle=ls,
                 linewidth=lw,
-                bw_adjust=3.0,
+                bw_adjust=4.0,
             )
 
             sns.kdeplot(
@@ -916,7 +829,7 @@ class MethodPlots2:
                 color=colors[1],
                 linestyle=ls,
                 linewidth=lw,
-                bw_adjust=3.0,
+                bw_adjust=4.0,
             )
 
             sns.kdeplot(
@@ -925,7 +838,7 @@ class MethodPlots2:
                 color=colors[2],
                 linestyle=ls,
                 linewidth=lw,
-                bw_adjust=3.0,
+                bw_adjust=4.0,
             )
 
         real_freq_line = Line2D([0], [0], color=colors[0], linestyle="-", linewidth=1.0)
@@ -935,136 +848,63 @@ class MethodPlots2:
             [real_freq_line, imag_freq_line, mixing_line],
             [r"Re($\omega_{\alpha}$)", r"Im($\omega_{\alpha}$)", r"$|\mu_{\alpha}^{\beta}|$"],
             frameon=False,
-            loc="lower left",
+            loc="upper right",
             ncol=1,
         )
 
         # Create a legend for line styles
         solid_line = Line2D([0], [0], color="black", linestyle="-", linewidth=1.0)
         dashed_line = Line2D([0], [0], color="black", linestyle="--", linewidth=1.0)
-        thin_solid_line = Line2D([0], [0], color="black", linestyle="-", linewidth=0.5)
-        thin_dashed_line = Line2D([0], [0], color="black", linestyle="--", linewidth=0.5)
 
         leg1 = ax.legend(
-            [solid_line, dashed_line, thin_solid_line, thin_dashed_line],
-            ["GP (ABD)", "WN (ABD)", "GP (nonlinear)", "WN (nonlinear)"],
+            [solid_line, dashed_line],
+            ["GP", "WN"],
             frameon=False,
-            loc="upper right",
+            loc="upper center",
             ncol=1,
         )
 
         ax.set_xscale("log")
         ax.set_yscale("log")
-        ax.set_ylim(1e2, 1e7)
-        ax.set_xlim(1e-8, 1e-3)
+        ax.set_ylim(7e2, 5e7)
+        ax.set_xlim(1e-9, 1e-3)
+
+        ax.set_yticks([])
 
         # Add both legends to the plot
         ax.add_artist(leg1)
         ax.add_artist(leg2)
 
         ax.set_xlabel("Fractional error")
+        ax.set_ylabel("Density (log scale)")
 
         plt.savefig(output_path, bbox_inches="tight")
         if show:
             plt.show()
         plt.close()
 
-    def ppc(self, output_path="outputs/ppc.pdf", show=False):
-        """
-        Generate posterior predictive checks.
-        """
-        fig, ax = plt.subplots(1, 1, figsize=(self.config.fig_width, self.config.fig_height))
-        fig2, ax2 = plt.subplots(1, 1, figsize=(self.config.fig_width, self.config.fig_height))
-        colors = self.custom_colormap2(np.linspace(0, 1, 2))
-
-        ax.plot(
-            self.fit_GP.fit["analysis_times"],
-            np.abs(self.fit_GP.fit["data_array_masked"][0].real),
-            color="black",
-            label="Data",
-        )
-
-        fits = [self.fit_GP, self.fit_WN]
-        fitnames = ["GP", "WN"]
-
-        for i, fit in enumerate(fits):
-            sample_models = np.zeros(
-                (min(100, len(fit.fit["samples"])), len(fit.fit["analysis_times"])), dtype=np.complex128
-            )
-            chi_squareds = np.zeros(min(100, len(fit.fit["samples"])))
-            for j in range(min(100, len(fit.fit["samples"]))):
-                theta_j = fit.fit["samples"][j, :]
-                sample_model = fit.get_model_linear(
-                    fit.fit["constant_term"], theta_j, fit.fit["ref_params"], fit.fit["model_terms"]
-                )
-                residual = fit.fit["data_array_masked"] - sample_model
-                chi_squared = np.einsum(
-                    "st,su,stu->",
-                    np.conj(residual),
-                    residual,
-                    fit.fit["inv_noise_covariance"],
-                )
-                chi_squareds[j] = chi_squared
-                sample_models[j, :] = np.abs(sample_model.real)
-
-            # Calculate min and max instead of percentiles
-            lower = np.min(sample_models, axis=0)
-            upper = np.max(sample_models, axis=0)
-            ax.fill_between(fit.fit["analysis_times"], lower, upper, color=colors[i], alpha=0.5, label=fitnames[i])
-
-            label = "GP" if i == 0 else "WN"
-            ax2.hist(chi_squareds, bins=50, alpha=0.7, color=colors[i], label=label)
-
-        ax2.set_xlabel("$\chi^2$")
-        ax2.set_ylabel("Frequency")
-        ax2.legend()
-
-        # Add labels and title
-        ax.set_xlabel("Time (s)")
-        ax.set_ylabel("h")
-        ax.legend()
-
-        ax.set_xlim(17, 100)
-        ax.set_yscale("log")
-
-        fig.savefig(output_path, bbox_inches="tight")
-        if show:
-            plt.show()
-        plt.close()
-
-        fig2.savefig(output_path.replace(".pdf", "_chi2.pdf"), bbox_inches="tight")
-        if show:
-            plt.figure(fig2.number)
-            plt.show()
-        plt.close(fig2)
-
 
 def main():
     method_plots = MethodPlots2(
         id="0001",
-        N_MAX=3,
+        N_MAX=6,
         T=100,
         T0_REF=17,
-        num_samples=int(1e3),
-        # large_num_samples=int(7e6),
-        large_num_samples=int(1e1),
+        num_samples=int(1e4),
+        # large_num_samples=int(5e7),
+        large_num_samples=int(5e3),
         include_Mf=True,
         include_chif=True,
     )
-
-    # method_plots.qnm_list += [(3,2,0,1)]
-    # method_plots.spherical_modes += [(3,2)]
-    # method_plots._initialize_results()
 
     method_plots.load_tuned_parameters()
     method_plots.compute_mf_chif()
     method_plots.get_t0_ref_fits()
 
-    method_plots.ppc(output_path="outputs/ppc.pdf", show=False)
-    # method_plots.linear_approximation(output_path="outputs/linear_approximation.pdf", show=False)
-    # method_plots.plot_fundamental_kde(output_path="outputs/fundamental_kde.pdf", show=False)
-    # method_plots.plot_overtone_kde(output_path="outputs/overtone_kde.pdf", show=False)
-    # method_plots.plot_mass_spin_corner(output_path="outputs/mass_spin_corner.pdf", show=False)
+    method_plots.linear_approximation(output_path="outputs/linear_approximation.pdf", show=False)
+    method_plots.plot_fundamental_kde(output_path="outputs/fundamental_kde.pdf", show=False)
+    method_plots.plot_overtone_kde(output_path="outputs/overtone_kde.pdf", show=False)
+    method_plots.plot_mass_spin_corner(output_path="outputs/mass_spin_corner.pdf", show=False)
 
 
 if __name__ == "__main__":

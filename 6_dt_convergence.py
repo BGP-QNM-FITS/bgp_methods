@@ -1,11 +1,11 @@
 import numpy as np
 import pickle
 import matplotlib.pyplot as plt
-from CCE import * 
 import bgp_qnm_fits as bgp
+
+from CCE import SXS_CCE
 from matplotlib.colors import LinearSegmentedColormap
 from plot_config import PlotConfig
-from matplotlib.lines import Line2D
 
 config = PlotConfig()
 config.apply_style()
@@ -82,7 +82,7 @@ analysis_times = np.arange(
     TRAINING_START_TIME,
     TRAINING_START_TIME + TRAINING_END_TIME,
     TIME_STEP,
-)  
+)
 
 # Define training bounds
 
@@ -165,6 +165,7 @@ R = bgp.get_residual_data()
 param_dict = bgp.get_param_dict()
 sim_main = SXS_CCE(ID, lev="Lev5", radius="R2")
 
+
 def get_hyperparameters_dt(training_spherical_modes=TRAINING_SPH_MODES):
     hyperparameters_array_dt = np.zeros((len(dts), len(INITIAL_PARAMS_GP)))
 
@@ -174,8 +175,8 @@ def get_hyperparameters_dt(training_spherical_modes=TRAINING_SPH_MODES):
 
         print(f"dt = {dt}")
 
-        new_times = np.arange(TRAINING_START_TIME, TRAINING_START_TIME+TRAINING_END_TIME, dt)
-        R_dict_interp = {k:bgp.sim_interpolator_data(v, analysis_times, new_times) for k, v in R.items()}
+        new_times = np.arange(TRAINING_START_TIME, TRAINING_START_TIME + TRAINING_END_TIME, dt)
+        R_dict_interp = {k: bgp.sim_interpolator_data(v, analysis_times, new_times) for k, v in R.items()}
 
         hyperparam_list, le, tuned_params = bgp.train_hyper_params(
             TRAINING_START_TIME,
@@ -194,92 +195,145 @@ def get_hyperparameters_dt(training_spherical_modes=TRAINING_SPH_MODES):
         hyperparameters_array_dt[i, :] = hyperparam_list
 
         initial_params = hyperparam_list
-    
+
     return hyperparameters_array_dt
 
 
 def plot_hyperparameters_dt(hyperparameters_array_dt):
-
     custom_colormap = LinearSegmentedColormap.from_list("custom_colormap2", config.colors2)
     colors = custom_colormap(np.linspace(0, 1, len(INITIAL_PARAMS_GP)))
 
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(config.fig_width, config.fig_height * 1.5), sharex=True, 
-                                  gridspec_kw={'height_ratios': [1, 2]})
-    
-    labels = [r"$\lambda$", r"$\delta$", r"$\nu$", r"$\mu$"]
+    fig, ax = plt.subplots(figsize=(config.fig_width, config.fig_height))
 
-    ax1.plot(dts, hyperparameters_array_dt[:, 1], color=colors[1], label=labels[1])
-    ax1.set_ylabel("Value")
-    ax1.legend()
+    labels = [r"$\lambda$", r"$\delta / M - 12$", r"$\nu$", r"$\mu$"]
 
-    for i in [0, 2, 3]:
-        ax2.plot(dts, hyperparameters_array_dt[:, i], label=labels[i], color=colors[i])
-    ax2.set_ylabel("Value")
-    ax2.set_xscale("log")
-    ax2.set_xlabel("dt")
-    ax2.legend(loc = "upper right", ncol=3)
+    for i in range(len(INITIAL_PARAMS_GP)):
+        if i == 1:
+            ax.plot(dts, hyperparameters_array_dt[:, i] - 12, label=labels[i], color=colors[i])
+        else:
+            ax.plot(dts, hyperparameters_array_dt[:, i], label=labels[i], color=colors[i])
 
-    ax1.set_xlim(dts[-1], dts[0])
-    ax2.set_xlim(dts[-1], dts[0])
+    ax.set_ylabel("Pooled parameter")
+    # ax.set_xscale("log")
+    ax.set_xlabel(r"$\Delta t \, [M]$")
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 3)
+    ax.legend(loc="upper right", ncol=2)
 
-    # Reduce space between subplots
-    plt.subplots_adjust(hspace=0.02)
-    
-    # Make sure x-axis ticks appear only on the bottom plot
-    plt.setp(ax1.get_xticklabels(), visible=False)
-    
     plt.tight_layout()
     fig.savefig("outputs/hyperparameters_dt.pdf", dpi=600, bbox_inches="tight")
 
 
 def plot_parameters_dt():
 
+    custom_colormap = LinearSegmentedColormap.from_list("custom_colormap2", config.colors2)
+    colors = custom_colormap(np.linspace(0, 1, len(INITIAL_PARAMS_GP)))
+
+    param_indices = [-1, -2, 0]
+    quantiles = [0.05, 0.5, 0.95]
+
+    fig, (ax_wn, ax_gp) = plt.subplots(2, 1, sharex=True, figsize=(config.fig_width, config.fig_height * 1.5))
+
+    widths_GP = np.zeros((len(dts), len(param_indices)))
+    widths_WN = np.zeros((len(dts), len(param_indices)))
+
     N_MAX = 6
     T0_REF = 17
-    T = 100 
+    T = 100
     tuned_param_dict_GP = bgp.get_param_data("GP")[ID]
+    tuned_param_dict_WN = bgp.get_param_data("WN")[ID]
     qnm_list = [(2, 2, n, 1) for n in np.arange(0, N_MAX + 1)]
     spherical_modes = [(2, 2)]
 
-    fits = [] 
-
     for i, dt in enumerate(dts):
-        sim_times_interp = np.arange(sim_main.times[0], sim_main.times[0]+sim_main.times[-1], dt)
+
+        print(f"dt = {dt}")
+
+        sim_times_interp = np.arange(sim_main.times[0], sim_main.times[-1] + dt, dt)
         sim_h_interp = bgp.sim_interpolator_data(sim_main.h, sim_main.times, sim_times_interp)
 
         fit_GP = bgp.BGP_fit(
-                sim_times_interp,
-                sim_h_interp,
-                qnm_list,
-                sim_main.Mf,
-                sim_main.chif_mag,
-                tuned_param_dict_GP,
-                bgp.kernel_GP,
-                t0=T0_REF,
-                num_samples=int(1e6),
-                t0_method="geq",
-                T=T,
-                spherical_modes=spherical_modes,
-                include_chif=True,
-                include_Mf=True,
-            )
+            sim_times_interp,
+            sim_h_interp,
+            qnm_list,
+            sim_main.Mf,
+            sim_main.chif_mag,
+            tuned_param_dict_GP,
+            bgp.kernel_GP,
+            t0=T0_REF,
+            num_samples=int(1e6),
+            t0_method="geq",
+            T=T,
+            spherical_modes=spherical_modes,
+            include_chif=True,
+            include_Mf=True,
+        )
 
-    fits.append(fit_GP)
+        fit_WN = bgp.BGP_fit(
+            sim_times_interp,
+            sim_h_interp,
+            qnm_list,
+            sim_main.Mf,
+            sim_main.chif_mag,
+            tuned_param_dict_WN,
+            bgp.kernel_WN,
+            t0=T0_REF,
+            num_samples=int(1e6),
+            t0_method="geq",
+            T=T,
+            spherical_modes=spherical_modes,
+            include_chif=True,
+            include_Mf=True,
+        )
+
+        samples_GP = fit_GP.fit["samples"]
+        samples_WN = fit_WN.fit["samples"]
+
+        for j, param_index in enumerate(param_indices):
+            param_samples_GP = samples_GP[:, param_index]
+            param_samples_WN = samples_WN[:, param_index]
+            quantile_values_GP = np.quantile(param_samples_GP, quantiles)
+            quantile_values_WN = np.quantile(param_samples_WN, quantiles)
+            widths_GP[i, j] = quantile_values_GP[2] - quantile_values_GP[0]
+            widths_WN[i, j] = quantile_values_WN[2] - quantile_values_WN[0]
+
+    param_labels = [r"$M$", r"$\chi$", r"Re($C_{(2,2,0,+)}$)"]
+
+    for j in range(len(param_indices)):
+        ax_wn.plot(dts, widths_WN[:, j], color=colors[j], linestyle="--", label=f"{param_labels[j]}")
+        ax_gp.plot(dts, widths_GP[:, j], color=colors[j], label=param_labels[j])
+
+    ax_wn.set_ylabel(r"$90 \%$ width (WN)")
+    ax_wn.set_xlim(0, 1)
+    ax_wn.set_ylim(0, np.max(widths_WN[4:, :]) * 1.1)
+    ax_wn.legend(loc="lower right", ncol=2)
+
+    ax_gp.set_ylabel(r"$90 \%$ width (GP)")
+    ax_gp.set_xlim(0, 1)
+    ax_gp.set_ylim(0, np.max(widths_GP[4:, :]) * 1.1)
+    ax_gp.legend(loc="lower right", ncol=2)
+
+    ax_gp.sharex(ax_wn)
+    ax_gp.set_xlabel(r"$\Delta t \, [M]$")
+
+    plt.tight_layout()
+    fig.savefig("outputs/parameters_dt.pdf", dpi=600, bbox_inches="tight")
 
 
 if __name__ == "__main__":
 
-    hyperparameters_array_dt = get_hyperparameters_dt()
+    # hyperparameters_array_dt = get_hyperparameters_dt()
 
-    with open("hyperparameters_array_dt.pkl", "wb") as f:
-        pickle.dump(hyperparameters_array_dt, f)
+    # with open("hyperparameters_array_dt.pkl", "wb") as f:
+    #    pickle.dump(hyperparameters_array_dt, f)
 
-    for mode in [(2,2), (4,4)]:
-        hyperparameters_array_dt = get_hyperparameters_dt(training_spherical_modes=[mode])
-        with open(f"hyperparameters_array_dt_{mode}.pkl", "wb") as f:
-            pickle.dump(hyperparameters_array_dt, f)
+    # for mode in [(2,2), (4,4)]:
+    #    hyperparameters_array_dt = get_hyperparameters_dt(training_spherical_modes=[mode])
+    #    with open(f"hyperparameters_array_dt_{mode}.pkl", "wb") as f:
+    #        pickle.dump(hyperparameters_array_dt, f)
 
     with open("hyperparameters_array_dt.pkl", "rb") as f:
         hyperparameters_array_dt = pickle.load(f)
 
     plot_hyperparameters_dt(hyperparameters_array_dt)
+    plot_parameters_dt()
