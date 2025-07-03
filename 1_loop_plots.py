@@ -7,7 +7,6 @@ from matplotlib.colors import to_hex
 from matplotlib.lines import Line2D
 from matplotlib.colors import LinearSegmentedColormap
 
-from CCE import SXS_CCE
 import bgp_qnm_fits as bgp
 
 from scipy.optimize import minimize
@@ -35,6 +34,8 @@ class MethodPlots:
         include_chif=True,
         use_nonlinear_params=False,
         decay_corrected=False,
+        data_type='strain',
+        strain_parameters=False, 
     ):
         self.id = id
         self.N_MAX = N_MAX
@@ -45,9 +46,11 @@ class MethodPlots:
         self.num_samples = num_samples
         self.use_nonlinear_params = use_nonlinear_params
         self.decay_corrected = decay_corrected
+        self.data_type = data_type
+        self.strain_parameters = strain_parameters
 
-        self.sim_main = SXS_CCE(id, lev="Lev5", radius="R2")
-        self.sim_lower = SXS_CCE(id, lev="Lev4", radius="R2")
+        self.sim_main = bgp.SXS_CCE(id, type=self.data_type, lev="Lev5", radius="R2") 
+        self.sim_lower = bgp.SXS_CCE(id, type=self.data_type, lev="Lev4", radius="R2")
 
         self._align_waveforms()
 
@@ -133,9 +136,9 @@ class MethodPlots:
         """
         Load tuned kernel parameters for GP and WN fits.
         """
-        self.tuned_param_dict_GP = bgp.get_param_data("GP")[self.id]
-        self.tuned_param_dict_WN = bgp.get_param_data("WN")[self.id]
-        self.tuned_param_dict_GPC = bgp.get_param_data("GPc")[self.id]
+        self.tuned_param_dict_GP = bgp.get_param_data("GP", data_type=self.data_type)[self.id] # TODO determine data type 
+        self.tuned_param_dict_WN = bgp.get_param_data("WN", data_type=self.data_type)[self.id]
+        self.tuned_param_dict_GPC = bgp.get_param_data("GPc", data_type=self.data_type)[self.id]
 
     def compute_mf_chif(self):
         """
@@ -253,6 +256,8 @@ class MethodPlots:
             spherical_modes=self.spherical_modes,
             include_chif=self.include_chif,
             include_Mf=self.include_Mf,
+            data_type=self.data_type,
+            strain_parameters=self.strain_parameters, 
         )
 
         fits_GP = bgp.BGP_fit(
@@ -272,6 +277,8 @@ class MethodPlots:
             spherical_modes=self.spherical_modes,
             include_chif=self.include_chif,
             include_Mf=self.include_Mf,
+            data_type=self.data_type,
+            strain_parameters=self.strain_parameters, 
         )
 
         self._store_results(fits_GP.fits, fits_WN.fits, fits_LS, main_data_masked, lower_data_masked)
@@ -503,7 +510,7 @@ class MethodPlots:
         ax.axhline(0.9, color="k", alpha=0.4)
         ax.set_xlabel("$t_0 \, [M]$")
         ax.set_ylabel(r"$\mathcal{S}_{\alpha}$")
-        ax.set_ylim(0.5, 1.02)
+        ax.set_ylim(0, 1.02)
         ax.set_xlim(-10, 100)
 
         plt.tight_layout()
@@ -765,12 +772,17 @@ def main():
         N_MAX=6,
         T=100,
         T0_REF=17,
-        num_samples=1000,
+        num_samples=10000,
         include_Mf=True,
         include_chif=True,
         use_nonlinear_params=False,
         decay_corrected=True,
+        data_type='psi4',
+        strain_parameters=False, 
     )
+
+    #method_plots.qnm_list += [(3,2,0,1)]
+    #method_plots._initialize_results()
 
     method_plots.load_tuned_parameters()
     method_plots.compute_mf_chif()
@@ -778,7 +790,6 @@ def main():
 
     method_plots.plot_spirals_ani(show=False)
     method_plots.plot_spirals_static(output_path="outputs/amplitude_spiral.pdf", show=False)
-    method_plots.plot_spirals_static_320(output_path="outputs/amplitude_spiral_320+.pdf", show=False)
     method_plots.plot_mismatch(output_path="outputs/mismatch.pdf", show=False)
     method_plots.plot_amplitude(output_path="outputs/amplitude.pdf", show=False)
     method_plots.plot_significance(output_path="outputs/significance.pdf", show=False)

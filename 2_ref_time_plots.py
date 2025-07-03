@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
-from CCE import SXS_CCE
 import bgp_qnm_fits as bgp
 
 from scipy.optimize import minimize
@@ -32,6 +31,8 @@ class MethodPlots2:
         large_num_samples=100000,
         include_Mf=True,
         include_chif=True,
+        data_type='strain',  # 'strain' or 'news'
+        strain_parameters=False, 
     ):
         self.id = id
         self.N_MAX = N_MAX
@@ -41,9 +42,11 @@ class MethodPlots2:
         self.include_chif = include_chif
         self.num_samples = num_samples
         self.large_num_samples = large_num_samples
+        self.data_type = data_type
+        self.strain_parameters = strain_parameters
 
-        self.sim_main = SXS_CCE(id, lev="Lev5", radius="R2")
-        self.sim_lower = SXS_CCE(id, lev="Lev4", radius="R2")
+        self.sim_main = bgp.SXS_CCE(id, type=self.data_type, lev="Lev5", radius="R2")
+        self.sim_lower = bgp.SXS_CCE(id, type=self.data_type, lev="Lev4", radius="R2")
 
         self.qnm_list = [(2, 2, n, 1) for n in np.arange(0, N_MAX + 1)]
         self.spherical_modes = [(2, 2)]
@@ -64,9 +67,9 @@ class MethodPlots2:
         """
         Load tuned kernel parameters for GP and WN fits.
         """
-        self.tuned_param_dict_GP = bgp.get_param_data("GP")[self.id]
-        self.tuned_param_dict_WN = bgp.get_param_data("WN")[self.id]
-        self.tuned_param_dict_GPC = bgp.get_param_data("GPc")[self.id]
+        self.tuned_param_dict_GP = bgp.get_param_data("GP", data_type=self.data_type)[self.id]
+        self.tuned_param_dict_WN = bgp.get_param_data("WN", data_type=self.data_type)[self.id]
+        self.tuned_param_dict_GPC = bgp.get_param_data("GPc", data_type=self.data_type)[self.id]
 
     def compute_mf_chif(self):
         """
@@ -113,17 +116,6 @@ class MethodPlots2:
         Get the fits for the reference t0 using class variables.
         """
 
-        ref_fit_LS = qnmfits.multimode_ringdown_fit(
-            self.sim_main.times,
-            self.sim_main.h,
-            self.qnm_list,
-            self.Mf_t0,
-            self.chif_t0,
-            self.T0_REF,
-            T=self.T,
-            spherical_modes=self.spherical_modes,
-        )
-
         ref_fit_WN = bgp.BGP_fit(
             self.sim_main.times,
             self.sim_main.h,
@@ -140,6 +132,8 @@ class MethodPlots2:
             spherical_modes=self.spherical_modes,
             include_chif=self.include_chif,
             include_Mf=self.include_Mf,
+            strain_parameters=self.strain_parameters,
+            data_type=self.data_type,
         )
 
         ref_fit_GP = bgp.BGP_fit(
@@ -158,6 +152,8 @@ class MethodPlots2:
             spherical_modes=self.spherical_modes,
             include_chif=self.include_chif,
             include_Mf=self.include_Mf,
+            strain_parameters=self.strain_parameters,
+            data_type=self.data_type,
         )
 
         ref_fit_GP_large_sample = bgp.BGP_fit(
@@ -176,6 +172,8 @@ class MethodPlots2:
             spherical_modes=self.spherical_modes,
             include_chif=self.include_chif,
             include_Mf=self.include_Mf,
+            strain_parameters=self.strain_parameters,
+            data_type=self.data_type,
         )
 
         ref_fit_WN_large_sample = bgp.BGP_fit(
@@ -194,15 +192,14 @@ class MethodPlots2:
             spherical_modes=self.spherical_modes,
             include_chif=self.include_chif,
             include_Mf=self.include_Mf,
+            strain_parameters=self.strain_parameters,
+            data_type=self.data_type,
         )
 
         self.fit_WN = ref_fit_WN
         self.fit_GP = ref_fit_GP
 
-        self.ref_params = []
-        for re_c, im_c in zip(np.real(ref_fit_LS["C"]), np.imag(ref_fit_LS["C"])):
-            self.ref_params.append(re_c)
-            self.ref_params.append(im_c)
+        self.ref_params = ref_fit_WN.fit["ref_params"]
 
         self.ref_samples_WN = ref_fit_WN.fit["samples"]
         self.ref_samples_GP = ref_fit_GP.fit["samples"]
@@ -410,8 +407,8 @@ class MethodPlots2:
             fontsize=5,
         )
 
-        g.ax_joint.set_xlim(-0.245, -0.205)
-        g.ax_joint.set_ylim(0.02, 0.06)
+        #g.ax_joint.set_xlim(-0.245, -0.205)
+        #g.ax_joint.set_ylim(0.02, 0.06)
 
         line_styles = [
             Line2D(
@@ -895,6 +892,8 @@ def main():
         large_num_samples=int(5e3),
         include_Mf=True,
         include_chif=True,
+        data_type='news',
+        strain_parameters=True, 
     )
 
     method_plots.load_tuned_parameters()

@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from CCE import SXS_CCE
 import bgp_qnm_fits as bgp
 
 from matplotlib.colors import to_hex
@@ -26,6 +25,8 @@ class MethodPlots2:
         num_samples=10000,
         include_Mf=True,
         include_chif=True,
+        data_type='news',
+        strain_parameters=True, 
     ):
         self.id = id
         self.N_MAX = N_MAX
@@ -34,9 +35,11 @@ class MethodPlots2:
         self.include_Mf = include_Mf
         self.include_chif = include_chif
         self.num_samples = num_samples
+        self.data_type = data_type
+        self.strain_parameters = strain_parameters
 
-        self.sim_main = SXS_CCE(id, lev="Lev5", radius="R2")
-        self.sim_lower = SXS_CCE(id, lev="Lev4", radius="R2")
+        self.sim_main = bgp.SXS_CCE(id, type=self.data_type, lev="Lev5", radius="R2")
+        self.sim_lower = bgp.SXS_CCE(id, type=self.data_type, lev="Lev4", radius="R2")
 
         self.qnm_list = [(2, 2, n, 1) for n in np.arange(0, N_MAX + 1)] + [(3, 2, 0, 1)]
         self.spherical_modes = [(2, 2)]
@@ -87,6 +90,8 @@ class MethodPlots2:
             spherical_modes=self.spherical_modes,
             include_chif=self.include_chif,
             include_Mf=self.include_Mf,
+            strain_parameters=self.strain_parameters,
+            data_type=self.data_type,
         )
 
         self.fit_GP = ref_fit_GP
@@ -218,6 +223,8 @@ def main():
         num_samples=int(1e3),
         include_Mf=True,
         include_chif=True,
+        data_type='news',
+        strain_parameters=False, 
     )
 
     method_plots.load_tuned_parameters()

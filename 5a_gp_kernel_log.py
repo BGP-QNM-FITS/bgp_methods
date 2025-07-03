@@ -12,13 +12,14 @@ config.apply_style()
 id = "0001"
 
 TRAINING_START_TIME = -10
-TRAINING_END_TIME = 260
+TRAINING_END_TIME = 310
 TIME_STEP = 0.1
 
 analysis_times = np.arange(TRAINING_START_TIME, TRAINING_START_TIME + TRAINING_END_TIME, TIME_STEP)
 
-R = bgp.get_residual_data(big=True)[id]
-tuned_params = bgp.get_param_data("GP")[id]
+R = bgp.get_residual_data(big=True, data_type='psi4')[id]
+tuned_params = bgp.get_param_data("GP", data_type='psi4')[id]
+param_dict_lm = bgp.get_param_dict(data_type='psi4')[id] 
 
 HYPERPARAM_RULE_DICT_GP = {
     "sigma_max": "multiply",
@@ -26,6 +27,10 @@ HYPERPARAM_RULE_DICT_GP = {
     "length_scale": "multiply",
     "period": "multiply",
 }
+
+#hyperparams = [0.6163200395338854, -17, 1, 0.37178491850208534]
+
+#tuned_params = bgp.get_tuned_params(param_dict_lm, hyperparams, HYPERPARAM_RULE_DICT_GP, spherical_modes=None)
 
 spherical_modes = [(2, 2), (3, 2), (4, 4)]
 
@@ -58,8 +63,17 @@ for i, (ell, m) in enumerate(spherical_modes):
         np.sqrt(np.diag(kernel_dict[ell, m])),
         color="k",
         alpha=0.2,
+        edgecolor=None,
         label=r"1$\sigma$",
     )
+    
+    # TODO fix edge line 
+
+    axs[i].plot(
+        analysis_times,
+        np.sqrt(np.diag(kernel_dict[ell, m])),
+        color="k",
+        alpha=0.2)
 
     period_length = tuned_params[(ell, m)]["period"]
 
@@ -96,10 +110,11 @@ for i, (ell, m) in enumerate(spherical_modes):
     )
 
     axs[i].set_title(rf"$\beta = ({ell}, {m})$")
-    axs[i].set_xlim(0, 200)
+    axs[i].set_xlim(-10, 300)
     axs[i].set_ylabel(r"$\mathfrak{r}^{\beta}_{i} \,\, [M]$")
     axs[i].set_yscale("log")
-    axs[i].set_ylim(1e-11, 3e-3)
+    #axs[i].set_ylim(1e-11, 3e-3)
+    axs[i].set_ylim(1e-13, 3e-3)
 
 
 solid_line = Line2D([0], [0], color="black", linestyle="-")

@@ -17,7 +17,7 @@ ID = "0001"
 
 T0s = np.linspace(0, 70, 30)
 T = 100 
-N_MAX = 6 
+N_MAX = 3 
 sim_main = SXS_CCE(ID, lev="Lev5", radius="R2")
 Mf_ref = sim_main.Mf
 chif_mag_ref = sim_main.chif_mag
@@ -74,5 +74,5 @@ axes[4].set_xlabel(r"$t_0$ \, [M]")
 
 plt.tight_layout()
 plt.subplots_adjust(right=1)
-fig.savefig("outputs/violin", bbox_inches="tight") 
+fig.savefig("outputs/violin_12", bbox_inches="tight") 
 plt.close(fig)
