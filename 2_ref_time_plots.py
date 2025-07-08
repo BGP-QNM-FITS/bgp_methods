@@ -33,6 +33,7 @@ class MethodPlots2:
         include_chif=True,
         data_type='strain',  # 'strain' or 'news'
         strain_parameters=False, 
+        use_nonlinear_params=False
     ):
         self.id = id
         self.N_MAX = N_MAX
@@ -44,6 +45,7 @@ class MethodPlots2:
         self.large_num_samples = large_num_samples
         self.data_type = data_type
         self.strain_parameters = strain_parameters
+        self.use_nonlinear_params = use_nonlinear_params
 
         self.sim_main = bgp.SXS_CCE(id, type=self.data_type, lev="Lev5", radius="R2")
         self.sim_lower = bgp.SXS_CCE(id, type=self.data_type, lev="Lev4", radius="R2")
@@ -125,7 +127,7 @@ class MethodPlots2:
             self.tuned_param_dict_WN,
             bgp.kernel_WN,
             t0=self.T0_REF,
-            use_nonlinear_params=False,
+            use_nonlinear_params=self.use_nonlinear_params,
             num_samples=self.num_samples,
             t0_method="geq",
             T=self.T,
@@ -145,7 +147,7 @@ class MethodPlots2:
             self.tuned_param_dict_GP,
             bgp.kernel_GP,
             t0=self.T0_REF,
-            use_nonlinear_params=False,
+            use_nonlinear_params=self.use_nonlinear_params,
             num_samples=self.num_samples,
             t0_method="geq",
             T=self.T,
@@ -165,7 +167,7 @@ class MethodPlots2:
             self.tuned_param_dict_GP,
             bgp.kernel_GP,
             t0=self.T0_REF,
-            use_nonlinear_params=False,
+            use_nonlinear_params=self.use_nonlinear_params,
             num_samples=self.large_num_samples,
             t0_method="geq",
             T=self.T,
@@ -185,7 +187,7 @@ class MethodPlots2:
             self.tuned_param_dict_WN,
             bgp.kernel_WN,
             t0=self.T0_REF,
-            use_nonlinear_params=False,
+            use_nonlinear_params=self.use_nonlinear_params,
             num_samples=self.large_num_samples,
             t0_method="geq",
             T=self.T,
@@ -893,7 +895,8 @@ def main():
         include_Mf=True,
         include_chif=True,
         data_type='news',
-        strain_parameters=True, 
+        strain_parameters=False, 
+        use_nonlinear_params=False
     )
 
     method_plots.load_tuned_parameters()

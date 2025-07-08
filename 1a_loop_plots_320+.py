@@ -747,7 +747,7 @@ def main():
         include_chif=True,
         use_nonlinear_params=False,
         decay_corrected=True,
-        data_type='psi4',
+        data_type='news',
         strain_parameters=False, 
     )
 

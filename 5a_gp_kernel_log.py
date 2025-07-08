@@ -17,22 +17,22 @@ TIME_STEP = 0.1
 
 analysis_times = np.arange(TRAINING_START_TIME, TRAINING_START_TIME + TRAINING_END_TIME, TIME_STEP)
 
-R = bgp.get_residual_data(big=True, data_type='psi4')[id]
-tuned_params = bgp.get_param_data("GP", data_type='psi4')[id]
-param_dict_lm = bgp.get_param_dict(data_type='psi4')[id] 
+data_type = 'psi4'
+
+R = bgp.get_residual_data(big=True, data_type=data_type)[id]
+tuned_params = bgp.get_param_data("GP", data_type=data_type)[id]
+param_dict_lm = bgp.get_param_dict(data_type=data_type)[id] 
 
 HYPERPARAM_RULE_DICT_GP = {
     "sigma_max": "multiply",
-    "t_s": "sum",
-    "length_scale": "multiply",
     "period": "multiply",
 }
 
-#hyperparams = [0.6163200395338854, -17, 1, 0.37178491850208534]
-
+#hyperparams = [6.1930717137040645, 0.38265931880613024]
 #tuned_params = bgp.get_tuned_params(param_dict_lm, hyperparams, HYPERPARAM_RULE_DICT_GP, spherical_modes=None)
 
 spherical_modes = [(2, 2), (3, 2), (4, 4)]
+#spherical_modes = [(2,1), (3, 2), (4, 4)]
 
 kernel_dict = {
     mode: bgp.compute_kernel_matrix(analysis_times, tuned_params[mode], bgp.kernel_GP) for mode in spherical_modes
@@ -56,6 +56,9 @@ for i, (ell, m) in enumerate(spherical_modes):
         color=colors[i],
         ls=":",
     )
+
+    axs[i].axvline(20)
+    axs[i].axvline(80)
 
     axs[i].fill_between(
         analysis_times,
@@ -114,7 +117,7 @@ for i, (ell, m) in enumerate(spherical_modes):
     axs[i].set_ylabel(r"$\mathfrak{r}^{\beta}_{i} \,\, [M]$")
     axs[i].set_yscale("log")
     #axs[i].set_ylim(1e-11, 3e-3)
-    axs[i].set_ylim(1e-13, 3e-3)
+    axs[i].set_ylim(1e-13, 3e-2)
 
 
 solid_line = Line2D([0], [0], color="black", linestyle="-")
@@ -134,4 +137,4 @@ axs[-1].add_artist(line_legend)
 axs[-1].legend(frameon=False, loc="lower right", ncol=1, bbox_to_anchor=(0.93, -0.75))
 axs[-1].set_xlabel("$t \,\, [M]$")
 
-fig.savefig("outputs/credible_regions_log.pdf", dpi=600, bbox_inches="tight")
+fig.savefig(f"outputs/credible_regions_log_{data_type}.pdf", dpi=600, bbox_inches="tight")

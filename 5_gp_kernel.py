@@ -12,13 +12,24 @@ config.apply_style()
 id = "0001"
 
 TRAINING_START_TIME = -10
-TRAINING_END_TIME = 100
+TRAINING_END_TIME = 310
 TIME_STEP = 0.1
 
 analysis_times = np.arange(TRAINING_START_TIME, TRAINING_START_TIME + TRAINING_END_TIME, TIME_STEP)
 
-R = bgp.get_residual_data()[id]
-tuned_params = bgp.get_param_data("GP")[id]
+data_type = 'news'
+
+R = bgp.get_residual_data(big=True, data_type=data_type)[id]
+tuned_params = bgp.get_param_data("GP", data_type=data_type)[id]
+param_dict_lm = bgp.get_param_dict(data_type=data_type)[id] 
+
+HYPERPARAM_RULE_DICT_GP = {
+    "sigma_max": "multiply",
+    "period": "multiply",
+}
+
+#hyperparams = [6.1930717137040645, 0.38265931880613024]
+#tuned_params = bgp.get_tuned_params(param_dict_lm, hyperparams, HYPERPARAM_RULE_DICT_GP, spherical_modes=None)
 
 spherical_modes = [(2, 2), (3, 2), (4, 4)]
 
@@ -108,4 +119,4 @@ axs[-1].add_artist(line_legend)
 axs[-1].legend(frameon=False, loc="lower right", ncol=1, bbox_to_anchor=(0.93, -0.75))
 axs[-1].set_xlabel("$t \,\, [M]$")
 
-fig.savefig("outputs/credible_regions.pdf", dpi=600, bbox_inches="tight")
+fig.savefig(f"outputs/credible_regions_{data_type}.pdf", dpi=600, bbox_inches="tight")
