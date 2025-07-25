@@ -11,7 +11,7 @@ from plot_config import PlotConfig
 from scipy.interpolate import interp1d
 
 config = PlotConfig()
-config.apply_style()
+#config.apply_style()
 
 ID="0001"
 N_MAX=6
@@ -40,8 +40,8 @@ for i, data_type in enumerate(data_types):
     chif_mag_ref = sim_main.chif_mag
     Mf_ref = sim_main.Mf
 
-    tuned_param_dict_WN = bgp.get_param_data("WN", data_type=data_type)[ID]
-    tuned_param_dict_GP = bgp.get_param_data("GP", data_type=data_type)[ID]
+    tuned_param_dict_WN = bgp.get_tuned_param_dict("WN", data_type=data_type)[ID]
+    tuned_param_dict_GP = bgp.get_tuned_param_dict("GP", data_type=data_type)[ID]
 
     fit_WN = bgp.BGP_fit(
         sim_main.times,

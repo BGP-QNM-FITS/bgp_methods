@@ -136,9 +136,9 @@ class MethodPlots:
         """
         Load tuned kernel parameters for GP and WN fits.
         """
-        self.tuned_param_dict_GP = bgp.get_param_data("GP", data_type=self.data_type)[self.id] # TODO determine data type 
-        self.tuned_param_dict_WN = bgp.get_param_data("WN", data_type=self.data_type)[self.id]
-        self.tuned_param_dict_GPC = bgp.get_param_data("GPc", data_type=self.data_type)[self.id]
+        self.tuned_param_dict_GP = bgp.get_tuned_param_dict("GP", data_type=self.data_type)[self.id] # TODO determine data type 
+        self.tuned_param_dict_WN = bgp.get_tuned_param_dict("WN", data_type=self.data_type)[self.id]
+        self.tuned_param_dict_GPC = bgp.get_tuned_param_dict("GPc", data_type=self.data_type)[self.id]
 
     def compute_mf_chif(self):
         """

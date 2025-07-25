@@ -7,7 +7,7 @@ from plot_config import PlotConfig
 from matplotlib.lines import Line2D
 
 config = PlotConfig()
-config.apply_style()
+#config.apply_style()
 
 id = "0001"
 

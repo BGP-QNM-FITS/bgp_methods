@@ -7,7 +7,7 @@ from plot_config import PlotConfig
 from matplotlib.lines import Line2D
 
 config = PlotConfig()
-config.apply_style()
+#config.apply_style()
 
 id = "0001"
 
@@ -17,7 +17,7 @@ TIME_STEP = 0.1
 
 analysis_times = np.arange(TRAINING_START_TIME, TRAINING_START_TIME + TRAINING_END_TIME, TIME_STEP)
 
-data_type = 'psi4'
+data_type = 'news'
 
 R = bgp.get_residual_data(big=True, data_type=data_type)[id]
 tuned_params = bgp.get_param_data("GP", data_type=data_type)[id]

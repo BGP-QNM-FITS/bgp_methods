@@ -19,7 +19,7 @@ from plot_config import PlotConfig
 class MethodPlots2:
 
     config = PlotConfig()
-    config.apply_style()
+    #config.apply_style()
 
     def __init__(
         self,
@@ -69,9 +69,9 @@ class MethodPlots2:
         """
         Load tuned kernel parameters for GP and WN fits.
         """
-        self.tuned_param_dict_GP = bgp.get_param_data("GP", data_type=self.data_type)[self.id]
-        self.tuned_param_dict_WN = bgp.get_param_data("WN", data_type=self.data_type)[self.id]
-        self.tuned_param_dict_GPC = bgp.get_param_data("GPc", data_type=self.data_type)[self.id]
+        self.tuned_param_dict_GP = bgp.get_tuned_param_dict("GP", data_type=self.data_type)[self.id]
+        self.tuned_param_dict_WN = bgp.get_tuned_param_dict("WN", data_type=self.data_type)[self.id]
+        self.tuned_param_dict_GPC = bgp.get_tuned_param_dict("GPc", data_type=self.data_type)[self.id]
 
     def compute_mf_chif(self):
         """
@@ -202,6 +202,7 @@ class MethodPlots2:
         self.fit_GP = ref_fit_GP
 
         self.ref_params = ref_fit_WN.fit["ref_params"]
+        self.ref_params_nonlinear = ref_fit_WN.fit["ref_params_nonlinear"]
 
         self.ref_samples_WN = ref_fit_WN.fit["samples"]
         self.ref_samples_GP = ref_fit_GP.fit["samples"]
@@ -318,9 +319,17 @@ class MethodPlots2:
         g.ax_joint.legend_.remove()
 
         g.ax_joint.plot(
+            self.ref_params_nonlinear[indices_fundamental[0]],
+            self.ref_params_nonlinear[indices_fundamental[1]],
+            "*",
+            color="#DE6A5E",
+            markersize=10,
+        )
+
+        g.ax_joint.plot(
             self.ref_params[indices_fundamental[0]],
             self.ref_params[indices_fundamental[1]],
-            "*",
+            "x",
             color="#DE6A5E",
             markersize=10,
         )
@@ -528,9 +537,17 @@ class MethodPlots2:
         g.ax_joint.legend_.remove()
 
         g.ax_joint.plot(
+            self.ref_params_nonlinear[indices_overtone[0]],
+            self.ref_params_nonlinear[indices_overtone[1]],
+            "*",
+            color="#DE6A5E",
+            markersize=10,
+        )
+
+        g.ax_joint.plot(
             self.ref_params[indices_overtone[0]],
             self.ref_params[indices_overtone[1]],
-            "*",
+            "x",
             color="#DE6A5E",
             markersize=10,
         )
