@@ -60,8 +60,8 @@ class MethodPlots2:
         """
         Load tuned kernel parameters for GP and WN fits.
         """
-        self.tuned_param_dict_GP = bgp.get_param_data("GP")[self.id]
-        self.tuned_param_dict_WN = bgp.get_param_data("WN")[self.id]
+        self.tuned_param_dict_GP = bgp.get_tuned_param_dict("GP")[self.id]
+        self.tuned_param_dict_WN = bgp.get_tuned_param_dict("WN")[self.id]
 
     def get_t0_ref_fits(self):
         """
@@ -114,12 +114,16 @@ class MethodPlots2:
         Generate posterior predictive checks.
         """
 
+        fit_times = self.T0s
+        t0_choices = [-1, 0, 1, 4]
+        closest_indices = [np.argmin(np.abs(fit_times - t0_choice)) for t0_choice in t0_choices]
+        color_index = 0 
+
         fig, (ax1, ax2) = plt.subplots(
             2, 1, figsize=(self.config.fig_width, self.config.fig_height * 1.5), gridspec_kw={"height_ratios": [1, 2]}
         )
         dummy_fig, dummy_ax = plt.subplots(figsize=(self.config.fig_width, self.config.fig_height))
-        colors = self.custom_colormap2(np.linspace(0, 1, len(self.T0s)))
-        fit_times = self.T0s
+        colors = self.custom_colormap2(np.linspace(0, 1, len(t0_choices)))
 
         cdf_lefts_median = np.zeros(len(fit_times))
         cdf_lefts_upper = np.zeros(len(fit_times))
@@ -134,11 +138,17 @@ class MethodPlots2:
 
             eigvals = np.linalg.eigvals(fit["noise_covariance"])[0].real
             eigvals = eigvals[eigvals > 1e-11]
-            num_draws = int(1e4)
+            num_draws = int(1e6)
             normal_samples = np.random.normal(0, 1, size=(num_draws, len(eigvals)))
             dist_samples = np.sum(eigvals * normal_samples**2, axis=1)
 
-            kde = sns.kdeplot(dist_samples, ax=dummy_ax, color=colors[i], alpha=0.5, bw_adjust=3)
+            if fit_time in fit_times[closest_indices]:
+                color = colors[color_index]
+                color_index += 1
+            else:
+                color = 'k'
+
+            kde = sns.kdeplot(dist_samples, ax=dummy_ax, color=color, alpha=0.5, bw_adjust=3)
             cdf = np.cumsum(kde.get_lines()[-1].get_ydata())
             cdf = cdf / cdf[-1]
             x_values = kde.get_lines()[-1].get_xdata()
@@ -169,24 +179,22 @@ class MethodPlots2:
             ax1.set_ylabel(r"$\mathrm{CDF}$")
             ax1.set_xlabel(r"$t_0 [M]$")
 
-            t0_choices = [1, 2, 3, 5]
-            closest_indices = [np.argmin(np.abs(fit_times - t0_choice)) for t0_choice in t0_choices]
             if fit_time in fit_times[closest_indices]:
-                sns.kdeplot(dist_samples, ax=ax2, color=colors[i], alpha=0.6, bw_adjust=1)
-                ax2.axvline(x=median_chi2, color=colors[i])
-                ax2.axvspan(ci_lower, ci_upper, alpha=0.1, color=colors[i])
+                sns.kdeplot(dist_samples, ax=ax2, color=color, alpha=0.6, bw_adjust=0.5)
+                ax2.axvline(x=median_chi2, color=color)
+                ax2.axvspan(ci_lower, ci_upper, alpha=0.1, color=color)
                 ax2.text(
                     median_chi2 - 0.0001,
-                    2593.4840329013887,
+                    1500,
                     rf"$t_0={fit_time:.2f} \, [M]$",
                     color="k",
                     rotation=90,
                     ha="center",
                     va="top",
                 )
-                ax1.plot(fit_time, cdf_lefts_median[i], marker="o", color=colors[i], markersize=3, zorder=10)
+                ax1.plot(fit_time, cdf_lefts_median[i], marker="o", color=color, markersize=3, zorder=10)
 
-        fit_times_dense = np.linspace(fit_times[0], fit_times[-1], 500)
+        fit_times_dense = np.linspace(fit_times[0], fit_times[-1], 50)
         cdf_lefts_median_interp = interp1d(fit_times, cdf_lefts_median, kind="cubic")
         cdf_lefts_median_smooth = cdf_lefts_median_interp(fit_times_dense)
         cdf_lefts_upper_interp = interp1d(fit_times, cdf_lefts_upper, kind="cubic")
@@ -197,11 +205,11 @@ class MethodPlots2:
         ax1.axhline(0.5, color="k", linestyle="-", alpha=0.4)
         ax1.plot(fit_times_dense, cdf_lefts_median_smooth, color="k", linestyle="-")
         ax1.fill_between(fit_times_dense, cdf_lefts_lower_smooth, cdf_lefts_upper_smooth, color="k", alpha=0.1)
-        ax1.set_xlim(0, 7)
+        ax1.set_xlim(-2, 5)
         ax1.set_ylim(0, 1.05)
         ax2.set_xlabel(r"$\xi^2$")
         ax2.set_ylabel("Relative frequency")
-        # ax2.set_xlim(0.89, 1.11)
+        ax2.set_xlim(-0.0001, 0.0035)
         ax2.tick_params(axis="y", which="both", left=False, right=False, labelleft=False)
         ax2.set_xticks(np.linspace(0, 0.003, 4))
 
@@ -218,7 +226,7 @@ def main():
         N_MAX=6,
         T=100,
         # T0=np.linspace(-4,-3,6),
-        T0=np.arange(0, 7.1, 0.5),
+        T0=np.arange(-2, 5.5, 0.5),
         # T0=np.linspace(-4, -3, 5),
         num_samples=int(1e3),
         include_Mf=True,

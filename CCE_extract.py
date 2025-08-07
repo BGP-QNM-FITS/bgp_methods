@@ -20,6 +20,7 @@ This script processes the SXS CCE data into a format suitable for qnm fits to th
 4. Map to the superrest frame a long time after the peak i.e. to the srf of the remnant.  
 
 """
+
 filenums = ["0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009", "0010", "0011", "0012", "0013"]
 r1 = ['0070', '0064', '0063', '0061', '0066', '0067', '0067', '0073', '0067', '0070', '0063', '0065', '0070']
 r2 = ['0292', '0261', '0250', '0236', '0274', '0273', '0270', '0305', '0270', '0235', '0222', '0223', '0237']
@@ -35,7 +36,6 @@ levs = ["Lev5", "Lev4"]
 #rss = [r2]
 #rssnames = ['R2']
 #levs = ["Lev5"]
-
 
 for rssname, radii in zip(rssnames, rss):
     for fileindex, filenum in enumerate(filenums):
@@ -66,29 +66,6 @@ for rssname, radii in zip(rssnames, rss):
             # Interpolate to the merger/ringdown regime (to speed things up) 
             abd_ringdown = abd.interpolate(np.arange(-100, abd.t[-1], 0.1))
 
-            h_pre = MT_to_WM(2.0 * abd_ringdown.sigma.bar) 
-            news_pre = MT_to_WM(2.0 * abd_ringdown.sigma.bar.dot)
-            psi_4_pre = MT_to_WM(abd_ringdown.psi4) # Note this may need a factor of -2.0 to match the scri convention.   
-
-            h_dict_pre = {'times': h_pre.t}
-
-            for ell in range(2, h_pre.ell_max+1):
-                for m in range(-ell, ell+1):
-                    h_dict_pre[ell, m] = np.array(h_pre.data[:, h_pre.index(ell, m)])
-
-            news_dict_pre = {'times': news_pre.t}
-
-            for ell in range(2, news_pre.ell_max+1):
-                for m in range(-ell, ell+1):
-                    news_dict_pre[ell, m] = np.array(news_pre.data[:, news_pre.index(ell, m)])
-
-            psi_4_dict_pre = {'times': psi_4_pre.t}
-
-            for ell in range(2, psi_4_pre.ell_max+1):
-                for m in range(-ell, ell+1):
-                    psi_4_dict_pre[ell, m] = np.array(psi_4_pre.data[:, psi_4_pre.index(ell, m)])
-
-            
             # Map to remnant superrest frame
             abd_ringdown_superrest, _, _ = abd_ringdown.map_to_superrest_frame(t_0=300, padding_time=20)
 
@@ -120,8 +97,6 @@ for rssname, radii in zip(rssnames, rss):
 
             # Save files 
 
-            # CURRENTLY I AM SAVING THE 'PRE' FILES AS THE FINAL ONES (I HAVE CHECKED THESE ARE THE SAME AND THEY ARE)
-
             with open(f'{filepath}/superrest_data/SXS:BBH_ExtCCE_superrest:{filenum}/SXS:BBH_ExtCCE_superrest:{filenum}_{lev}_{rssname}_h.pickle', 'wb') as f:
                 pickle.dump(h_dict, f)
 
@@ -132,19 +107,19 @@ for rssname, radii in zip(rssnames, rss):
             #    pickle.dump(h_dict_pre, f)
 
             with open(f'{filepath}/superrest_data/SXS:BBH_ExtCCE_superrest:{filenum}/SXS:BBH_ExtCCE_superrest:{filenum}_{lev}_{rssname}_news.pickle', 'wb') as f:
-                pickle.dump(news_dict_pre, f)
+                pickle.dump(news_dict, f)
 
-            with open(f'{filepath}/superrest_data_test/SXS:BBH_ExtCCE_superrest:{filenum}/SXS:BBH_ExtCCE_superrest:{filenum}_{lev}_{rssname}_news_pre.pickle', 'wb') as f:
-                pickle.dump(news_dict_pre, f)
+            #with open(f'{filepath}/superrest_data_test/SXS:BBH_ExtCCE_superrest:{filenum}/SXS:BBH_ExtCCE_superrest:{filenum}_{lev}_{rssname}_news_pre.pickle', 'wb') as f:
+            #    pickle.dump(news_dict, f)
 
             #with open(f'{filepath}/superrest_data_test/SXS:BBH_ExtCCE_superrest:{filenum}/SXS:BBH_ExtCCE_superrest:{filenum}_{lev}_{rssname}_news_pre.pickle', 'wb') as f:
             #    pickle.dump(news_dict_pre, f)
 
             with open(f'{filepath}/superrest_data/SXS:BBH_ExtCCE_superrest:{filenum}/SXS:BBH_ExtCCE_superrest:{filenum}_{lev}_{rssname}_psi4.pickle', 'wb') as f:
-                pickle.dump(psi_4_dict_pre, f)
+                pickle.dump(psi_4_dict, f)
 
-            with open(f'{filepath}/superrest_data_test/SXS:BBH_ExtCCE_superrest:{filenum}/SXS:BBH_ExtCCE_superrest:{filenum}_{lev}_{rssname}_psi4_pre.pickle', 'wb') as f:
-                pickle.dump(psi_4_dict_pre, f)
+            #with open(f'{filepath}/superrest_data_test/SXS:BBH_ExtCCE_superrest:{filenum}/SXS:BBH_ExtCCE_superrest:{filenum}_{lev}_{rssname}_psi4_pre.pickle', 'wb') as f:
+            #    pickle.dump(psi_4_dict, f)
 
             #with open(f'{filepath}/superrest_data_test/SXS:BBH_ExtCCE_superrest:{filenum}/SXS:BBH_ExtCCE_superrest:{filenum}_{lev}_{rssname}_psi4_pre.pickle', 'wb') as f:
             #    pickle.dump(psi_4_dict_pre, f)

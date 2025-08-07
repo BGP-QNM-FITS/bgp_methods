@@ -11,7 +11,7 @@ from plot_config import PlotConfig
 from scipy.interpolate import interp1d
 
 config = PlotConfig()
-#config.apply_style()
+config.apply_style()
 
 ID="0001"
 N_MAX=6
@@ -103,21 +103,22 @@ for j in range(len(qnm_list) * 2 + 2):
         n = j // 2
         component = "Re" if j % 2 == 0 else "Im"
         axes[j].set_title(fr"{component}($C_{{2, 2, {n}, +}}$)")
+        axes[j].axvline(ref_params[j], color="k", ls='--', alpha=0.3)
     elif j == len(qnm_list) * 2:
         axes[j].set_title(r"$\chi_f$")
     elif j == len(qnm_list) * 2 + 1:
         axes[j].set_title(r"$M_f$")
     lower_bound, upper_bound = np.percentile(ref_samples[:, j], [0.0001, 99.9999])
     axes[j].set_xlim(lower_bound, upper_bound)
-    axes[j].axvline(ref_params[j], color="#DE6A5E", ls='--')
+    #axes[j].set_xlim(ref_params[j] * 0.5, ref_params[j] * 1.5)
 
 chif_nonlinear, Mf_nonlinear = fit_WN.get_nonlinear_mf_chif(T0, fit_WN.T, fit_WN.spherical_modes, fit_WN.chif_ref, fit_WN.Mf_ref)
 
-axes[-1].axvline(sim_main.Mf, color="#DE6A5E", ls='-')
-axes[-1].axvline(Mf_nonlinear, color="#DE6A5E", ls='--')
+axes[-1].axvline(sim_main.Mf, color="k", ls='--', alpha=0.3)
+axes[-1].axvline(Mf_nonlinear, color="k", ls='-', alpha=0.3)
 
-axes[-2].axvline(sim_main.chif_mag, color="#DE6A5E", ls='-')
-axes[-2].axvline(chif_nonlinear, color="#DE6A5E", ls='--')
+axes[-2].axvline(sim_main.chif_mag, color="k", ls='--', alpha=0.3)
+axes[-2].axvline(chif_nonlinear, color="k", ls='-', alpha=0.3)
 
 # Create legend for linestyles
 linestyle_handles = [

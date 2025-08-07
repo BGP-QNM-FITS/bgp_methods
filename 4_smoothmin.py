@@ -9,7 +9,7 @@ config = PlotConfig()
 config.apply_style()
 
 
-def smoothmax(x, x_max, smoothness):
+def smoothmin(x, x_max, smoothness):
     return (x + x_max - np.sqrt((x - x_max) ** 2 + smoothness * x_max**2)) * 0.5
 
 
@@ -22,12 +22,12 @@ colors = custom_colormap(np.linspace(0, 1, len(smoothness)))
 
 fig, ax = plt.subplots(figsize=(config.fig_width, config.fig_height))
 
-for i, smoothness in enumerate(smoothness):
-    ax.plot(x, smoothmax(x, x_max, smoothness[i]), color=colors[i])
+for i, smoothnesses in enumerate(smoothness):
+    ax.plot(x, smoothmin(x, x_max, smoothnesses), color=colors[i])
 
-ax.plot(x, np.clip(x, 0, x_max), c="k", label=r"max($x$, $x_{\rm max}$)", ls="--")
+ax.plot(x, np.clip(x, 0, x_max), c="k", label=r"min($x$, $x_{\rm max}$)", ls="--")
 ax.set_xlabel("$x$")
-ax.set_ylabel(r"$\textsc{SmoothMax}(x)$")
+ax.set_ylabel(r"$\textsc{SmoothMin}(x)$")
 ax.set_xlim(0, 2)
 ax.set_ylim(0, 1.15)
 ax.set_aspect("equal")
@@ -41,4 +41,4 @@ sm.set_array([])
 cbar = plt.colorbar(sm, ax=ax, format=LogFormatter(), shrink=0.6)
 cbar.set_label(r"$s$", labelpad=10, rotation=0)
 
-fig.savefig("outputs/smoothmax.pdf", dpi=600, bbox_inches="tight")
+fig.savefig("outputs/smoothmin.pdf", dpi=600, bbox_inches="tight")

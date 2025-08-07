@@ -139,9 +139,9 @@ class MethodPlots:
         """
         Load tuned kernel parameters for GP and WN fits.
         """
-        self.tuned_param_dict_GP = bgp.get_tuned_param_dict("GP", data_type=self.data_type)[self.id] # TODO determine data type 
+        self.tuned_param_dict_GP = bgp.get_tuned_param_dict("GP", data_type=self.data_type)[self.id]
         self.tuned_param_dict_WN = bgp.get_tuned_param_dict("WN", data_type=self.data_type)[self.id]
-        self.tuned_param_dict_GPC = bgp.get_tuned_param_dict("GPc", data_type=self.data_type)[self.id]
+        #self.tuned_param_dict_GPC = bgp.get_tuned_param_dict("GPc", data_type=self.data_type)[self.id]
 
     def compute_mf_chif(self):
         """
@@ -556,15 +556,15 @@ class MethodPlots:
             loc="upper right",
             ncol=1,
             fontsize=7,
-            bbox_to_anchor=(1.0, 0.97),
+            bbox_to_anchor=(1.0, 0.99),
         )
 
         # ax.set_xticks(self.T0s[::5])
         # ax.set_xticklabels([f"{t0:.1f}" for t0 in self.T0s[::5]], rotation=90, fontsize=6)
         # ax.grid(axis="x", linestyle="-", color="grey", alpha=0.7)
 
-        ax.axvline(self.T0_REF, color="k", alpha=0.4)
-        ax.axhline(0.9, color="k", alpha=0.4)
+        ax.axvline(self.T0_REF, color="k", alpha=0.3)
+        ax.axhline(0.9, color="k", alpha=0.3)
         ax.set_xlabel("$t_0 \, [M]$")
         ax.set_ylabel(r"$\mathcal{S}_{\alpha}$")
         ax.set_ylim(0, 1.02)

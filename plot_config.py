@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
-
 class PlotConfig:
     def __init__(self):
         self.style = "stylesheet.mplstyle"

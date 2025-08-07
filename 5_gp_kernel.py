@@ -7,7 +7,7 @@ from plot_config import PlotConfig
 from matplotlib.lines import Line2D
 
 config = PlotConfig()
-#config.apply_style()
+config.apply_style()
 
 id = "0001"
 
@@ -20,7 +20,7 @@ analysis_times = np.arange(TRAINING_START_TIME, TRAINING_START_TIME + TRAINING_E
 data_type = 'news'
 
 R = bgp.get_residual_data(big=True, data_type=data_type)[id]
-tuned_params = bgp.get_param_data("GP", data_type=data_type)[id]
+tuned_params = bgp.get_tuned_param_dict("GP", data_type=data_type)[id]
 param_dict_lm = bgp.get_param_dict(data_type=data_type)[id] 
 
 HYPERPARAM_RULE_DICT_GP = {
@@ -59,7 +59,8 @@ for i, (ell, m) in enumerate(spherical_modes):
     period_length = tuned_params[(ell, m)]["period"]
 
     y_pos = np.min(np.real(R[ell, m])) + 0.7 * np.ptp(np.real(R[ell, m]))
-
+    
+    """
     axs[i].plot(
         [40, 40 + period_length],
         [y_pos, y_pos],
@@ -88,6 +89,7 @@ for i, (ell, m) in enumerate(spherical_modes):
         ha="center",
         fontsize=7,
     )
+    """
 
     axs[i].fill_between(
         analysis_times,

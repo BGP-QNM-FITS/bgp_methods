@@ -19,7 +19,7 @@ from plot_config import PlotConfig
 class MethodPlots2:
 
     config = PlotConfig()
-    #config.apply_style()
+    config.apply_style()
 
     def __init__(
         self,
@@ -71,7 +71,7 @@ class MethodPlots2:
         """
         self.tuned_param_dict_GP = bgp.get_tuned_param_dict("GP", data_type=self.data_type)[self.id]
         self.tuned_param_dict_WN = bgp.get_tuned_param_dict("WN", data_type=self.data_type)[self.id]
-        self.tuned_param_dict_GPC = bgp.get_tuned_param_dict("GPc", data_type=self.data_type)[self.id]
+        #self.tuned_param_dict_GPC = bgp.get_tuned_param_dict("GPc", data_type=self.data_type)[self.id]
 
     def compute_mf_chif(self):
         """
@@ -386,7 +386,7 @@ class MethodPlots2:
         )
 
         ax_inset.set_title(r"$|C_{\alpha}|$", fontsize=8)
-        ax_inset.set_xlim(0.2245, 0.234)
+        #ax_inset.set_xlim(0.2245, 0.234)
         ax_inset.set_ylabel("")
         ax_inset.set_xlabel("")
         ax_inset.set_yticklabels([])
@@ -418,8 +418,8 @@ class MethodPlots2:
             fontsize=5,
         )
 
-        #g.ax_joint.set_xlim(-0.245, -0.205)
-        #g.ax_joint.set_ylim(0.02, 0.06)
+        g.ax_joint.set_xlim(0.0425, 0.048)
+        g.ax_joint.set_ylim(0.116, 0.1215)
 
         line_styles = [
             Line2D(
@@ -622,7 +622,7 @@ class MethodPlots2:
         )
 
         ax_inset.set_title(r"$|C_{\alpha}|$", fontsize=8)
-        ax_inset.set_xlim(0, 0.45)
+        ax_inset.set_xlim(0, 0.3)
         # ax_inset.set_ylim(0, 2.5)
         ax_inset.set_ylabel("")
         ax_inset.set_xlabel("")
@@ -643,8 +643,8 @@ class MethodPlots2:
             fontsize=5,
         )
 
-        g.ax_joint.set_xlim(-1, 1.5)
-        g.ax_joint.set_ylim(-1.75, 1)
+        g.ax_joint.set_xlim(-0.2, 0.2)
+        g.ax_joint.set_ylim(-0.4, 0.03)
 
         line_styles = [
             Line2D(
@@ -744,7 +744,7 @@ class MethodPlots2:
 
         # Add vertical and horizontal dotted lines at the truth values
         g.ax_joint.plot(self.chif_t0, self.Mf_t0, "*", color="#DE6A5E", markersize=8)
-        g.ax_joint.plot(self.chif_mag_ref, self.Mf_ref, marker=(4, 2, 90), color="#DE6A5E", markersize=8)
+        g.ax_joint.plot(self.chif_mag_ref, self.Mf_ref, "x", color="#DE6A5E", markersize=8)
 
         # Add legend for the truth values
         g.ax_joint.legend(loc="upper right", frameon=False)
@@ -752,8 +752,8 @@ class MethodPlots2:
         # Add labels
         g.set_axis_labels(r"$\chi_f$", r"$M_f \, [M]$")
 
-        g.ax_joint.set_xlim(0.675, 0.7)
-        g.ax_joint.set_ylim(0.945, 0.962)
+        g.ax_joint.set_xlim(0.6845, 0.691)
+        g.ax_joint.set_ylim(0.951, 0.956)
 
         line_styles = [
             Line2D([0], [0], color=self.fundamental_color_GP, linestyle="-", label="GP"),
@@ -882,7 +882,7 @@ class MethodPlots2:
 
         ax.set_xscale("log")
         ax.set_yscale("log")
-        ax.set_ylim(7e2, 5e7)
+        ax.set_ylim(5e3, 5e7)
         ax.set_xlim(1e-9, 1e-3)
 
         ax.set_yticks([])
@@ -907,8 +907,8 @@ def main():
         T=100,
         T0_REF=17,
         num_samples=int(1e4),
-        # large_num_samples=int(5e7),
-        large_num_samples=int(5e3),
+        #large_num_samples=int(5e6),
+        large_num_samples=int(1e4),
         include_Mf=True,
         include_chif=True,
         data_type='news',

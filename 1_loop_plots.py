@@ -62,7 +62,7 @@ class MethodPlots:
         self.chif_mag_ref = self.sim_main.chif_mag
         self.Mf_ref = self.sim_main.Mf
 
-        self.T0s = np.linspace(-10, 100, 110)
+        self.T0s = np.linspace(-10, 130, 140)
 
         self._initialize_results()
 
@@ -138,7 +138,7 @@ class MethodPlots:
         """
         self.tuned_param_dict_GP = bgp.get_tuned_param_dict("GP", data_type=self.data_type)[self.id] # TODO determine data type 
         self.tuned_param_dict_WN = bgp.get_tuned_param_dict("WN", data_type=self.data_type)[self.id]
-        self.tuned_param_dict_GPC = bgp.get_tuned_param_dict("GPc", data_type=self.data_type)[self.id]
+        #self.tuned_param_dict_GPC = bgp.get_tuned_param_dict("GPc", data_type=self.data_type)[self.id]
 
     def compute_mf_chif(self):
         """
@@ -447,7 +447,7 @@ class MethodPlots:
 
         ax.axvline(self.T0_REF, color="k", alpha=0.3, lw=1)
         ax.set_xlim(-10, 30)
-        ax.set_ylim(1e-1, 1e5)
+        ax.set_ylim(1e-1, 1e3)
         ax.set_xlabel("$t_0 \, [M]$")
         ax.set_ylabel(r"$|\hat{C}_{\alpha}|$")
         ax.set_yscale("log")
@@ -503,15 +503,15 @@ class MethodPlots:
             loc="upper right",
             ncol=1,
             fontsize=7,
-            bbox_to_anchor=(1.0, 0.97),
+            bbox_to_anchor=(0.95, 0.99),
         )
 
-        ax.axvline(self.T0_REF, color="k", alpha=0.4)
-        ax.axhline(0.9, color="k", alpha=0.4)
+        ax.axvline(self.T0_REF, color="k", alpha=0.3)
+        ax.axhline(0.9, color="k", alpha=0.3)
         ax.set_xlabel("$t_0 \, [M]$")
         ax.set_ylabel(r"$\mathcal{S}_{\alpha}$")
         ax.set_ylim(0, 1.02)
-        ax.set_xlim(-10, 100)
+        ax.set_xlim(-10, 130)
 
         plt.tight_layout()
         plt.subplots_adjust(right=1)
@@ -531,9 +531,9 @@ class MethodPlots:
 
         colors = self.custom_colormap(np.linspace(0, 1, len(self.qnm_list)))
 
-        specified_T0s_1 = [16.5, 18.3, 21]
-        specified_T0s_2 = [20.3, 23, 24.8]
-        specified_T0s_3 = [20.1, 22.2, 24.3]
+        specified_T0s_1 = [10, 20, 30]
+        specified_T0s_2 = [14.7, 16.5, 22]
+        specified_T0s_3 = [12, 17.5, 25]
 
         markers = ["o", "^", "s"]
 
@@ -541,11 +541,11 @@ class MethodPlots:
 
             # Apply cubic spline to smooth the data on the finer grid
             fine_grid = np.linspace(self.T0s[0], self.T0s[-1], len(self.T0s) * 100)
-            smoothed_x = CubicSpline(self.T0s, self.mean_vector_GP[:, 2 * i])(fine_grid)
-            smoothed_y = CubicSpline(self.T0s, self.mean_vector_GP[:, 2 * i + 1])(fine_grid)
-            smoothed_significance = CubicSpline(self.T0s, self.significances_GP[:, i])(fine_grid)
+            smoothed_x = CubicSpline(self.T0s, self.mean_vector_WN[:, 2 * i])(fine_grid)
+            smoothed_y = CubicSpline(self.T0s, self.mean_vector_WN[:, 2 * i + 1])(fine_grid)
+            smoothed_significance = CubicSpline(self.T0s, self.significances_WN[:, i])(fine_grid)
 
-            if i not in [1, 3, 5]:
+            if i not in [0, 1, 2]:
                 continue
 
             ax_top.plot(
@@ -553,9 +553,10 @@ class MethodPlots:
                 smoothed_significance,
                 label=f"{qnm[2]}",
                 color=colors[i],
+                ls = '--'
             )
 
-            if i == 1:
+            if i == 0:
                 ax_bottom_left.plot(
                     smoothed_x,
                     smoothed_y,
@@ -563,8 +564,8 @@ class MethodPlots:
                     linestyle="-",
                     label=f"{qnm[2]}",
                 )
-                ax_bottom_left.set_xlim(-0.05, 0.05)
-                ax_bottom_left.set_ylim(-0.05, 0.05)
+                ax_bottom_left.set_xlim(-0.5, 0.5)
+                ax_bottom_left.set_ylim(-0.5, 0.5)
                 ax_bottom_left.axhline(0, color="black", alpha=0.5, linestyle="--", lw=0.5)
                 ax_bottom_left.axvline(0, color="black", alpha=0.5, linestyle="--", lw=0.5)
 
@@ -586,7 +587,7 @@ class MethodPlots:
                         s=7,
                     )
 
-            elif i == 3:
+            elif i == 1:
                 ax_bottom_center.plot(
                     smoothed_x,
                     smoothed_y,
@@ -594,8 +595,8 @@ class MethodPlots:
                     linestyle="-",
                     label=f"{qnm[2]}",
                 )
-                ax_bottom_center.set_xlim(-0.54, 0.54)
-                ax_bottom_center.set_ylim(-0.54, 0.54)
+                ax_bottom_center.set_xlim(-0.04, 0.04)
+                ax_bottom_center.set_ylim(-0.04, 0.04)
                 ax_bottom_center.axhline(0, color="black", alpha=0.5, linestyle="--", lw=0.5)
                 ax_bottom_center.axvline(0, color="black", alpha=0.5, linestyle="--", lw=0.5)
 
@@ -617,7 +618,7 @@ class MethodPlots:
                         s=7,
                     )
 
-            elif i == 5:
+            elif i == 2:
                 ax_bottom_right.plot(
                     smoothed_x,
                     smoothed_y,
@@ -625,8 +626,8 @@ class MethodPlots:
                     linestyle="-",
                     label=f"{qnm[2]}",
                 )
-                ax_bottom_right.set_xlim(-0.26, 0.26)
-                ax_bottom_right.set_ylim(-0.26, 0.26)
+                ax_bottom_right.set_xlim(-0.2, 0.2)
+                ax_bottom_right.set_ylim(-0.2, 0.2)
                 ax_bottom_right.axhline(0, color="black", alpha=0.5, linestyle="--", lw=0.5)
                 ax_bottom_right.axvline(0, color="black", alpha=0.5, linestyle="--", lw=0.5)
 
@@ -649,7 +650,7 @@ class MethodPlots:
                     )
 
         ax_top.set_xlim(0, 40)
-        ax_top.set_ylim(0.85, 1.02)
+        ax_top.set_ylim(0.55, 1.05)
         ax_top.set_xlabel("$t_0 \, [M]$")
         ax_top.set_ylabel(r"$\mathcal{S}_{\alpha}$")
         ax_top.legend(
@@ -659,9 +660,9 @@ class MethodPlots:
             loc="lower left",
         )
 
-        ax_bottom_left.set_title(r"$n = 1$")
-        ax_bottom_center.set_title(r"$n = 3$")
-        ax_bottom_right.set_title(r"$n = 5$")
+        ax_bottom_left.set_title(r"$n = 0$")
+        ax_bottom_center.set_title(r"$n = 1$")
+        ax_bottom_right.set_title(r"$n = 2$")
 
         ax_bottom_left.set_xlabel(r"$\mathrm{Re}(C_{\alpha})$")
         ax_bottom_left.set_ylabel(r"$\mathrm{Im}(C_{\alpha})$", labelpad=-2)
