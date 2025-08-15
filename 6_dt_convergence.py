@@ -308,13 +308,13 @@ if __name__ == "__main__":
 
     hyperparameters_array_dt = get_hyperparameters_dt()
 
-    #with open("hyperparameters_array_dt.pkl", "wb") as f:
-    #    pickle.dump(hyperparameters_array_dt, f)
+    with open("hyperparameters_array_dt.pkl", "wb") as f:
+        pickle.dump(hyperparameters_array_dt, f)
 
     # for mode in [(2,2), (4,4)]:
     #    hyperparameters_array_dt = get_hyperparameters_dt(training_spherical_modes=[mode])
-    with open(f"hyperparameters_array_dt.pkl", "wb") as f:
-        pickle.dump(hyperparameters_array_dt, f)
+    #with open(f"hyperparameters_array_dt.pkl", "wb") as f:
+    #    pickle.dump(hyperparameters_array_dt, f)
 
     #with open("hyperparameters_array_dt.pkl", "rb") as f:
     #    hyperparameters_array_dt = pickle.load(f)

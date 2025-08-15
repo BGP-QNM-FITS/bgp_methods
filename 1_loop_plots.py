@@ -62,7 +62,7 @@ class MethodPlots:
         self.chif_mag_ref = self.sim_main.chif_mag
         self.Mf_ref = self.sim_main.Mf
 
-        self.T0s = np.linspace(-10, 130, 140)
+        self.T0s = np.linspace(-10, 250, 260)
 
         self._initialize_results()
 
@@ -136,7 +136,7 @@ class MethodPlots:
         """
         Load tuned kernel parameters for GP and WN fits.
         """
-        self.tuned_param_dict_GP = bgp.get_tuned_param_dict("GP", data_type=self.data_type)[self.id] # TODO determine data type 
+        self.tuned_param_dict_GP = bgp.get_tuned_param_dict("GP", data_type=self.data_type)[self.id] 
         self.tuned_param_dict_WN = bgp.get_tuned_param_dict("WN", data_type=self.data_type)[self.id]
         #self.tuned_param_dict_GPC = bgp.get_tuned_param_dict("GPc", data_type=self.data_type)[self.id]
 
@@ -399,6 +399,13 @@ class MethodPlots:
         colors = self.custom_colormap(np.linspace(0, 1, len(self.qnm_list)))
 
         for i, qnm in enumerate(self.qnm_list):
+            ax.fill_between(
+                self.T0s,
+                self.amplitudes_WN_percentiles[0.25][:, i],
+                self.amplitudes_WN_percentiles[0.75][:, i],
+                alpha=0.2,
+                color=colors[i],
+            )
             ax.plot(
                 self.T0s,
                 self.amplitudes_GP_percentiles[0.5][:, i],
@@ -411,20 +418,13 @@ class MethodPlots:
                 linestyle="--",
                 color=colors[i],
             )
-            ax.fill_between(
-                self.T0s,
-                self.amplitudes_GP_percentiles[0.25][:, i],
-                self.amplitudes_GP_percentiles[0.75][:, i],
-                alpha=0.2,
-                color=colors[i],
-            )
-            ax.fill_between(
-                self.T0s,
-                self.amplitudes_WN_percentiles[0.25][:, i],
-                self.amplitudes_WN_percentiles[0.75][:, i],
-                alpha=0.2,
-                color=colors[i],
-            )
+            #ax.fill_between(
+            #    self.T0s,
+            #    self.amplitudes_GP_percentiles[0.25][:, i],
+            #    self.amplitudes_GP_percentiles[0.75][:, i],
+            #    alpha=0.2,
+            #    color=colors[i],
+            #)
 
         solid_line = Line2D([0], [0], color="black", linestyle="-")
         dashed_line = Line2D([0], [0], color="black", linestyle="--")
@@ -467,21 +467,18 @@ class MethodPlots:
             colors = self.custom_colormap(np.linspace(0, 1, len(self.qnm_list)))
             color = colors[i]
             label = (rf"$n = {qnm[2]}$",)
-            lw = 1
 
             ax.plot(
                 self.T0s,
                 self.significances_GP[:, i],
                 label=label,
                 color=color,
-                lw=lw,
             )[0]
             ax.plot(
                 self.T0s,
                 self.significances_WN[:, i],
                 linestyle="--",
                 color=color,
-                lw=lw,
             )
 
         solid_line = Line2D([0], [0], color="black", linestyle="-")
@@ -511,7 +508,7 @@ class MethodPlots:
         ax.set_xlabel("$t_0 \, [M]$")
         ax.set_ylabel(r"$\mathcal{S}_{\alpha}$")
         ax.set_ylim(0, 1.02)
-        ax.set_xlim(-10, 130)
+        ax.set_xlim(-10, 250)
 
         plt.tight_layout()
         plt.subplots_adjust(right=1)
@@ -543,7 +540,7 @@ class MethodPlots:
             fine_grid = np.linspace(self.T0s[0], self.T0s[-1], len(self.T0s) * 100)
             smoothed_x = CubicSpline(self.T0s, self.mean_vector_WN[:, 2 * i])(fine_grid)
             smoothed_y = CubicSpline(self.T0s, self.mean_vector_WN[:, 2 * i + 1])(fine_grid)
-            smoothed_significance = CubicSpline(self.T0s, self.significances_WN[:, i])(fine_grid)
+            smoothed_significance = np.minimum(1, CubicSpline(self.T0s, self.significances_WN[:, i])(fine_grid)) # TODO maybe replace with a logistic
 
             if i not in [0, 1, 2]:
                 continue

@@ -50,7 +50,7 @@ class MethodPlots2:
         self.sim_main = bgp.SXS_CCE(id, type=self.data_type, lev="Lev5", radius="R2")
         self.sim_lower = bgp.SXS_CCE(id, type=self.data_type, lev="Lev4", radius="R2")
 
-        self.qnm_list = [(2, 2, n, 1) for n in np.arange(0, N_MAX + 1)]
+        self.qnm_list = [(2, 2, n, 1) for n in np.arange(0, N_MAX + 1)] + [(3,2,0,1)]
         self.spherical_modes = [(2, 2)]
 
         self.chif_mag_ref = self.sim_main.chif_mag
@@ -278,6 +278,7 @@ class MethodPlots2:
             marginal_kws={"fill": False},
             height=self.config.fig_width,
             levels=[0.1, 0.5],
+            bw_adjust=2.0,
         )
 
         # Adjust the linewidth of the KDE plots
@@ -297,6 +298,7 @@ class MethodPlots2:
             linestyle="--",
             fill=False,
             linewidth=1.5,
+            bw_adjust=2.0,
         )
         sns.kdeplot(
             y=df_samples_fundamental_WN[labels[1]],
@@ -305,6 +307,7 @@ class MethodPlots2:
             linestyle="--",
             fill=False,
             linewidth=1.5,
+            bw_adjust=2.0,
         )
         sns.kdeplot(
             x=df_samples_fundamental_WN[labels[0]],
@@ -314,6 +317,7 @@ class MethodPlots2:
             fill=False,
             levels=[0.1, 0.5],
             linewidths=1.5,
+            bw_adjust=2.0,
         )
 
         g.ax_joint.legend_.remove()
@@ -373,6 +377,7 @@ class MethodPlots2:
             label="GP (Prior 1)",
             linewidth=1.5,
             ax=ax_inset,
+            bw_adjust=2.0,
         )
 
         sns.kdeplot(
@@ -383,10 +388,11 @@ class MethodPlots2:
             linewidth=0.5,
             weights="Weight",
             ax=ax_inset,
+            bw_adjust=2.0,
         )
 
         ax_inset.set_title(r"$|C_{\alpha}|$", fontsize=8)
-        #ax_inset.set_xlim(0.2245, 0.234)
+        ax_inset.set_xlim(0.1283, 0.1295)
         ax_inset.set_ylabel("")
         ax_inset.set_xlabel("")
         ax_inset.set_yticklabels([])
@@ -418,8 +424,8 @@ class MethodPlots2:
             fontsize=5,
         )
 
-        g.ax_joint.set_xlim(0.0425, 0.048)
-        g.ax_joint.set_ylim(0.116, 0.1215)
+        g.ax_joint.set_xlim(0.040, 0.047)
+        g.ax_joint.set_ylim(0.1165, 0.124)
 
         line_styles = [
             Line2D(
@@ -496,6 +502,7 @@ class MethodPlots2:
             marginal_kws={"fill": False},
             height=self.config.fig_width,
             levels=[0.1, 0.5],
+            bw_adjust=2.0,
         )
 
         # Adjust the linewidth of the KDE plots in the joint plot
@@ -515,6 +522,7 @@ class MethodPlots2:
             linestyle="--",
             fill=False,
             linewidth=1.5,
+            bw_adjust=2.0,
         )
         sns.kdeplot(
             y=df_samples_overtone_WN[labels[1]],
@@ -523,6 +531,7 @@ class MethodPlots2:
             linestyle="--",
             fill=False,
             linewidth=1.5,
+            bw_adjust=2.0,
         )
         sns.kdeplot(
             x=df_samples_overtone_WN[labels[0]],
@@ -532,6 +541,7 @@ class MethodPlots2:
             fill=False,
             levels=[0.1, 0.5],
             linewidth=1.5,
+            bw_adjust=2.0,
         )
 
         g.ax_joint.legend_.remove()
@@ -609,6 +619,7 @@ class MethodPlots2:
             linewidth=1.5,
             label="GP (Prior 1)",
             ax=ax_inset,
+            bw_adjust=2.0,
         )
 
         sns.kdeplot(
@@ -619,10 +630,11 @@ class MethodPlots2:
             linewidth=0.5,
             weights="Weight",
             ax=ax_inset,
+            bw_adjust=2.0,
         )
 
         ax_inset.set_title(r"$|C_{\alpha}|$", fontsize=8)
-        ax_inset.set_xlim(0, 0.3)
+        ax_inset.set_xlim(0, 0.15)
         # ax_inset.set_ylim(0, 2.5)
         ax_inset.set_ylabel("")
         ax_inset.set_xlabel("")
@@ -643,8 +655,8 @@ class MethodPlots2:
             fontsize=5,
         )
 
-        g.ax_joint.set_xlim(-0.2, 0.2)
-        g.ax_joint.set_ylim(-0.4, 0.03)
+        g.ax_joint.set_xlim(-0.22, 0.22)
+        g.ax_joint.set_ylim(-0.3, 0.2)
 
         line_styles = [
             Line2D(
@@ -752,8 +764,8 @@ class MethodPlots2:
         # Add labels
         g.set_axis_labels(r"$\chi_f$", r"$M_f \, [M]$")
 
-        g.ax_joint.set_xlim(0.6845, 0.691)
-        g.ax_joint.set_ylim(0.951, 0.956)
+        g.ax_joint.set_xlim(0.683, 0.690)
+        g.ax_joint.set_ylim(0.9495, 0.954)
 
         line_styles = [
             Line2D([0], [0], color=self.fundamental_color_GP, linestyle="-", label="GP"),
@@ -907,7 +919,7 @@ def main():
         T=100,
         T0_REF=17,
         num_samples=int(1e4),
-        #large_num_samples=int(5e6),
+        #large_num_samples=int(1e7),
         large_num_samples=int(1e4),
         include_Mf=True,
         include_chif=True,

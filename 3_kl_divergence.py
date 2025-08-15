@@ -69,9 +69,11 @@ mode_filters = {
 
 analysis_times = np.arange(TRAINING_START_TIME, TRAINING_END_TIME, TIME_STEP)
 
-tuned_param_dict_GP = bgp.get_param_data("GP")
-tuned_param_dict_WN = bgp.get_param_data("WN")
-tuned_param_dict_GPC = bgp.get_param_data("GPc")
+data_type = 'news'
+
+tuned_param_dict_GP = bgp.get_tuned_param_dict("GP", data_type=data_type)
+tuned_param_dict_WN = bgp.get_tuned_param_dict("WN", data_type=data_type)
+tuned_param_dict_GPC = bgp.get_tuned_param_dict("GPc", data_type=data_type)
 
 
 def kl_divergence_figs():
@@ -94,13 +96,13 @@ def kl_divergence_figs():
         for sph_mode in spherical_mode_choice:
 
             kernel_matrix_WN = bgp.compute_kernel_matrix(
-                analysis_times, tuned_param_dict_WN[sim_id][sph_mode], bgp.kernel_WN
+                analysis_times, tuned_param_dict_WN[sim_id][sph_mode], bgp.kernel_WN, regularization_factor=1e2
             )
             kernel_matrix_GP = bgp.compute_kernel_matrix(
-                analysis_times, tuned_param_dict_GP[sim_id][sph_mode], bgp.kernel_GP
+                analysis_times, tuned_param_dict_GP[sim_id][sph_mode], bgp.kernel_GP, regularization_factor=1e2 
             )
             kernel_matrix_GPC = bgp.compute_kernel_matrix(
-                analysis_times, tuned_param_dict_GPC[sim_id][sph_mode], bgp.kernel_GPC
+                analysis_times, tuned_param_dict_GPC[sim_id][sph_mode], bgp.kernel_GPC, regularization_factor=1e2
             )
 
             kl_div_sn = bgp.js_divergence(kernel_matrix_WN, kernel_matrix_GP)
@@ -119,7 +121,7 @@ def kl_divergence_figs():
         cn_list_full = np.append(cn_list_full, cn_list)
         sc_list_full = np.append(sc_list_full, sc_list)
 
-        if sim_id != "0005":
+        if sim_id != "0001":
             continue
 
         fig, ax = plt.subplots(figsize=(config.fig_width, config.fig_height))
@@ -167,6 +169,47 @@ def kl_divergence_figs():
 
 
 def kl_divergence_histogram(sn_list_full, cn_list_full, sc_list_full):
+    fig, ax = plt.subplots(figsize=(config.fig_width, config.fig_height))
+
+    bins = np.linspace(2, 8, 40)
+
+    ax.hist(
+        cn_list_full,
+        bins=bins,
+        alpha=0.7,
+        label="GP, GPc",
+        color=colors[2],
+        edgecolor="black",
+        linewidth=0.5,
+    )
+    ax.hist(
+        sc_list_full,
+        bins=bins - 0.05, 
+        alpha=0.7,
+        label="WN, GPc",
+        color=colors[0],
+        edgecolor="black",
+        linewidth=0.5,
+    )
+    ax.hist(
+        sn_list_full,
+        bins=bins + 0.05, 
+        alpha=0.7,
+        label="WN, GP",
+        color=colors[1],
+        edgecolor="black",
+        linewidth=0.5,
+    )
+
+    #ax.set_xlim(1.8, 8.2)
+    ax.set_xlabel(r"$\log_{10}(D)$")
+    ax.set_ylabel("Frequency")
+    ax.legend(frameon=False, loc="upper right")
+
+    fig.savefig("outputs/JS_histogram.pdf")
+
+
+def kl_divergence_histogram_broken_axis(sn_list_full, cn_list_full, sc_list_full):
     fig = plt.figure(figsize=(config.fig_width, config.fig_height))
     gs = GridSpec(1, 2, width_ratios=[1, 1], wspace=0.04)  # Adjust hspace for overlap
 

@@ -9,6 +9,8 @@ from matplotlib.colors import LinearSegmentedColormap
 
 from plot_config import PlotConfig
 from scipy.interpolate import interp1d
+from scipy.interpolate import CubicSpline
+from scipy.signal import savgol_filter
 
 
 class MethodPlots2:
@@ -109,13 +111,25 @@ class MethodPlots2:
         """
         return constant_term + np.einsum("p,stp->st", mean_vector - ref_params, model_terms)
 
+    def data_to_axis_fraction(self, ax, data_coord, axis='x'):
+        """Convert a data coordinate to an axis fraction (0-1 scale)"""
+        if axis == 'x':
+            axis_min, axis_max = ax.get_xlim()
+        else:
+            axis_min, axis_max = ax.get_ylim()
+
+        if axis_min > axis_max:
+            axis_min, axis_max = axis_max, axis_min
+
+        return (data_coord - axis_min) / (axis_max - axis_min)
+
     def ppc_main(self, output_path="outputs/ppc.pdf", show=False):
         """
         Generate posterior predictive checks.
         """
 
         fit_times = self.T0s
-        t0_choices = [-1, 0, 1, 4]
+        t0_choices = [0, 2, 20]
         closest_indices = [np.argmin(np.abs(fit_times - t0_choice)) for t0_choice in t0_choices]
         color_index = 0 
 
@@ -129,6 +143,8 @@ class MethodPlots2:
         cdf_lefts_upper = np.zeros(len(fit_times))
         cdf_lefts_lower = np.zeros(len(fit_times))
 
+        ax2.set_xlim(-0.0002, 0.002)
+
         for i, fit_time in enumerate(fit_times):
 
             fit = self.fit_GP.fits[i]
@@ -137,8 +153,8 @@ class MethodPlots2:
             r_squareds = np.zeros(min(1000, len(samples)))
 
             eigvals = np.linalg.eigvals(fit["noise_covariance"])[0].real
-            eigvals = eigvals[eigvals > 1e-11]
-            num_draws = int(1e6)
+            #eigvals = eigvals[eigvals > 1e-11]
+            num_draws = int(1e5)
             normal_samples = np.random.normal(0, 1, size=(num_draws, len(eigvals)))
             dist_samples = np.sum(eigvals * normal_samples**2, axis=1)
 
@@ -180,38 +196,56 @@ class MethodPlots2:
             ax1.set_xlabel(r"$t_0 [M]$")
 
             if fit_time in fit_times[closest_indices]:
-                sns.kdeplot(dist_samples, ax=ax2, color=color, alpha=0.6, bw_adjust=0.5)
+                sns.kdeplot(dist_samples, ax=ax2, color=color, alpha=0.4, bw_adjust=0.5)
                 ax2.axvline(x=median_chi2, color=color)
                 ax2.axvspan(ci_lower, ci_upper, alpha=0.1, color=color)
+                
+                # Convert median_chi2 to axis fraction
+                x_frac = self.data_to_axis_fraction(ax2, median_chi2)
+                
+                # Add small offset and ensure it stays within bounds
+                text_x = x_frac
+                
                 ax2.text(
-                    median_chi2 - 0.0001,
-                    1500,
+                    text_x - 0.02,
+                    0.5,
                     rf"$t_0={fit_time:.2f} \, [M]$",
-                    color="k",
+                    color=color,  # Use same color as the line for better association
                     rotation=90,
-                    ha="center",
-                    va="top",
+                    ha="right",
+                    va="center",
+                    transform=ax2.transAxes  # Use axes coordinates for both x and y
                 )
                 ax1.plot(fit_time, cdf_lefts_median[i], marker="o", color=color, markersize=3, zorder=10)
 
-        fit_times_dense = np.linspace(fit_times[0], fit_times[-1], 50)
-        cdf_lefts_median_interp = interp1d(fit_times, cdf_lefts_median, kind="cubic")
-        cdf_lefts_median_smooth = cdf_lefts_median_interp(fit_times_dense)
-        cdf_lefts_upper_interp = interp1d(fit_times, cdf_lefts_upper, kind="cubic")
-        cdf_lefts_upper_smooth = cdf_lefts_upper_interp(fit_times_dense)
-        cdf_lefts_lower_interp = interp1d(fit_times, cdf_lefts_lower, kind="cubic")
-        cdf_lefts_lower_smooth = cdf_lefts_lower_interp(fit_times_dense)
+        #fit_times_dense = np.linspace(fit_times[0], fit_times[-1], 100)
+        #cdf_lefts_median_spline = CubicSpline(fit_times, cdf_lefts_median)
+        #cdf_lefts_median_smooth = cdf_lefts_median_spline(fit_times_dense)
+        #cdf_lefts_upper_spline = CubicSpline(fit_times, cdf_lefts_upper)
+        #cdf_lefts_upper_smooth = cdf_lefts_upper_spline(fit_times_dense)
+        #cdf_lefts_lower_spline = CubicSpline(fit_times, cdf_lefts_lower)
+        #cdf_lefts_lower_smooth = cdf_lefts_lower_spline(fit_times_dense)
 
         ax1.axhline(0.5, color="k", linestyle="-", alpha=0.4)
-        ax1.plot(fit_times_dense, cdf_lefts_median_smooth, color="k", linestyle="-")
-        ax1.fill_between(fit_times_dense, cdf_lefts_lower_smooth, cdf_lefts_upper_smooth, color="k", alpha=0.1)
-        ax1.set_xlim(-2, 5)
-        ax1.set_ylim(0, 1.05)
+        window_length = 5  # Must be odd number and less than data length
+        poly_order = 2      # Polynomial order for the filter
+
+        # Apply the filter to each curve
+        #cdf_smooth_median = savgol_filter(cdf_lefts_median, window_length, poly_order)
+        #cdf_smooth_lower = savgol_filter(cdf_lefts_lower, window_length, poly_order)
+        #cdf_smooth_upper = savgol_filter(cdf_lefts_upper, window_length, poly_order)
+
+        # Plot the smoothed data
+        ax1.plot(fit_times, cdf_lefts_median, color="k", linestyle="-")
+        ax1.fill_between(fit_times, cdf_lefts_lower, cdf_lefts_upper, color="k", alpha=0.1)
+        #ax1.set_xlim(-2, 5)
+        ax1.set_xlim(-10, 100)
+        #ax1.set_ylim(0, 1.05)
+        ax1.set_ylim(-0.5, 1.5)
         ax2.set_xlabel(r"$\xi^2$")
         ax2.set_ylabel("Relative frequency")
-        ax2.set_xlim(-0.0001, 0.0035)
         ax2.tick_params(axis="y", which="both", left=False, right=False, labelleft=False)
-        ax2.set_xticks(np.linspace(0, 0.003, 4))
+        #ax2.set_xticks(np.linspace(0, 0.003, 4))
 
         fig.savefig(output_path, bbox_inches="tight")
         if show:
@@ -225,9 +259,7 @@ def main():
         id="0001",
         N_MAX=6,
         T=100,
-        # T0=np.linspace(-4,-3,6),
-        T0=np.arange(-2, 5.5, 0.5),
-        # T0=np.linspace(-4, -3, 5),
+        T0=np.arange(-10, 110, 1),
         num_samples=int(1e3),
         include_Mf=True,
         include_chif=True,
