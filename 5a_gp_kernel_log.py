@@ -116,7 +116,7 @@ for i, (ell, m) in enumerate(spherical_modes):
     """
     axs[i].set_title(rf"$\beta = ({ell}, {m})$")
     axs[i].set_xlim(-10, 300)
-    axs[i].set_ylabel(r"$\mathfrak{r}^{\beta}_{i} \,\, [M]$")
+    axs[i].set_ylabel(r"$\mathfrak{r}^{\beta}_{i} \,\, [M^2]$")
     axs[i].set_yscale("log")
     #axs[i].set_ylim(1e-11, 3e-3)
     axs[i].set_ylim(1e-13, 3e-2)

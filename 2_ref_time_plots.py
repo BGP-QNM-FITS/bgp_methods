@@ -244,9 +244,9 @@ class MethodPlots2:
 
         labels = [
             (
-                rf"$\mathrm{{Re}}(C_{{({param[0]},{param[1]},{param[2]},+)}})$"
+                rf"$\mathrm{{Re}} \, C_{{({param[0]},{param[1]},{param[2]},+)}} \,\, [M]$"
                 if i % 2 == 0
-                else rf"$\mathrm{{Im}}(C_{{({param[0]},{param[1]},{param[2]},+)}})$"
+                else rf"$\mathrm{{Im}} \, C_{{({param[0]},{param[1]},{param[2]},+)}} \,\, [M]$"
             )
             for param in parameter_choice
             for i in range(2)
@@ -391,7 +391,7 @@ class MethodPlots2:
             bw_adjust=2.0,
         )
 
-        ax_inset.set_title(r"$|C_{\alpha}|$", fontsize=8)
+        ax_inset.set_title(r"$|C_{\alpha}| \,\, [M]$", fontsize=8)
         ax_inset.set_xlim(0.1283, 0.1295)
         ax_inset.set_ylabel("")
         ax_inset.set_xlabel("")
@@ -468,9 +468,9 @@ class MethodPlots2:
 
         labels = [
             (
-                rf"$\mathrm{{Re}}(C_{{({param[0]},{param[1]},{param[2]},+)}})$"
+                rf"$\mathrm{{Re}} \, C_{{({param[0]},{param[1]},{param[2]},+)}} \,\, [M]$"
                 if i % 2 == 0
-                else rf"$\mathrm{{Im}}(C_{{({param[0]},{param[1]},{param[2]},+)}})$"
+                else rf"$\mathrm{{Im}} \, C_{{({param[0]},{param[1]},{param[2]},+)}} \,\, [M]$"
             )
             for param in parameter_choice
             for i in range(2)
@@ -633,7 +633,7 @@ class MethodPlots2:
             bw_adjust=2.0,
         )
 
-        ax_inset.set_title(r"$|C_{\alpha}|$", fontsize=8)
+        ax_inset.set_title(r"$|C_{\alpha}| \,\, [M]$", fontsize=8)
         ax_inset.set_xlim(0, 0.15)
         # ax_inset.set_ylim(0, 2.5)
         ax_inset.set_ylabel("")
@@ -894,7 +894,7 @@ class MethodPlots2:
 
         ax.set_xscale("log")
         ax.set_yscale("log")
-        ax.set_ylim(5e3, 5e7)
+        ax.set_ylim(5e3, 2e8)
         ax.set_xlim(1e-9, 1e-3)
 
         ax.set_yticks([])
@@ -919,8 +919,8 @@ def main():
         T=100,
         T0_REF=17,
         num_samples=int(1e4),
-        #large_num_samples=int(1e7),
-        large_num_samples=int(1e4),
+        large_num_samples=int(1e7),
+        #large_num_samples=int(1e4),
         include_Mf=True,
         include_chif=True,
         data_type='news',

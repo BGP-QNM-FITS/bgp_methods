@@ -62,7 +62,7 @@ class MethodPlots:
         self.chif_mag_ref = self.sim_main.chif_mag
         self.Mf_ref = self.sim_main.Mf
 
-        self.T0s = np.linspace(-10, 250, 260)
+        self.T0s = np.linspace(-10, 110, 120)
 
         self._initialize_results()
 
@@ -449,7 +449,7 @@ class MethodPlots:
         ax.set_xlim(-10, 30)
         ax.set_ylim(1e-1, 1e3)
         ax.set_xlabel("$t_0 \, [M]$")
-        ax.set_ylabel(r"$|\hat{C}_{\alpha}|$")
+        ax.set_ylabel(r"$|\hat{C}_{\alpha}[\mathcal{N}]| \,\, [M]$")
         ax.set_yscale("log")
 
         plt.tight_layout()
@@ -508,7 +508,7 @@ class MethodPlots:
         ax.set_xlabel("$t_0 \, [M]$")
         ax.set_ylabel(r"$\mathcal{S}_{\alpha}$")
         ax.set_ylim(0, 1.02)
-        ax.set_xlim(-10, 250)
+        ax.set_xlim(-10, 110)
 
         plt.tight_layout()
         plt.subplots_adjust(right=1)
@@ -661,10 +661,10 @@ class MethodPlots:
         ax_bottom_center.set_title(r"$n = 1$")
         ax_bottom_right.set_title(r"$n = 2$")
 
-        ax_bottom_left.set_xlabel(r"$\mathrm{Re}(C_{\alpha})$")
-        ax_bottom_left.set_ylabel(r"$\mathrm{Im}(C_{\alpha})$", labelpad=-2)
-        ax_bottom_center.set_xlabel(r"$\mathrm{Re}(C_{\alpha})$")
-        ax_bottom_right.set_xlabel(r"$\mathrm{Re}(C_{\alpha})$")
+        ax_bottom_left.set_xlabel(r"$\mathrm{Re} \, C_{\alpha} \,\, [M]$")
+        ax_bottom_left.set_ylabel(r"$\mathrm{Im} \, C_{\alpha} \,\, [M]$", labelpad=-2)
+        ax_bottom_center.set_xlabel(r"$\mathrm{Re} \, C_{\alpha} \,\, [M]$")
+        ax_bottom_right.set_xlabel(r"$\mathrm{Re} \, C_{\alpha} \,\, [M]$")
 
         plt.tight_layout()
         fig.savefig(output_path, bbox_inches="tight")

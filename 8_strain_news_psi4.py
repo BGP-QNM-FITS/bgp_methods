@@ -103,16 +103,16 @@ for j in range(len(qnm_list) * 2 + 2):
     if j < len(qnm_list) * 2:
         n = j // 2
         component = "Re" if j % 2 == 0 else "Im"
-        title = fr"{component}($C_{{2, 2, {n}, +}}$)"
+        title = fr"{component}$\, C_{{(2, 2, {n}, +)}} \,\, [M]$"
         if n == 7:
-            title = fr"{component}($C_{{3, 2, {0}, +}}$)"
+            title = fr"{component}$\, C_{{(3, 2, {0}, +)}} \,\, [M]$"
         axes[j].set_title(title)
         axes[j].axvline(ref_params[j], color="k", ls='--', alpha=0.3)
         axes[j].axvline(ref_params_nonlinear[j], color="k", ls='-', alpha=0.3)
     elif j == len(qnm_list) * 2:
         axes[j].set_title(r"$\chi_f$")
     elif j == len(qnm_list) * 2 + 1:
-        axes[j].set_title(r"$M_f$")
+        axes[j].set_title(r"$M_f \,\, [M]$")
     lower_bound, upper_bound = np.percentile(ref_samples[:, j], [10, 90])
     axes[j].set_xlim(lower_bound, upper_bound)
     axes[j].set_xticks(np.round(np.linspace(lower_bound, upper_bound, 3), 3))

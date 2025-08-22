@@ -99,16 +99,6 @@ class MethodPlots2:
         self.fit_GP = ref_fit_GP
 
     def get_model_linear(self, constant_term, mean_vector, ref_params, model_terms):
-        """
-        Compute the linear model array based on the mean vector and model terms.
-        Args:
-            constant_term (float): The constant term in the model.
-            mean_vector (array): The mean vector of the parameters.
-            ref_params (array): Reference parameters for the model.
-            model_terms (array): The model terms.
-        Returns:
-            model_array (array): The linear model array.
-        """
         return constant_term + np.einsum("p,stp->st", mean_vector - ref_params, model_terms)
 
     def data_to_axis_fraction(self, ax, data_coord, axis='x'):
@@ -199,48 +189,28 @@ class MethodPlots2:
                 sns.kdeplot(dist_samples, ax=ax2, color=color, alpha=0.4, bw_adjust=0.5)
                 ax2.axvline(x=median_chi2, color=color)
                 ax2.axvspan(ci_lower, ci_upper, alpha=0.1, color=color)
-                
-                # Convert median_chi2 to axis fraction
+
                 x_frac = self.data_to_axis_fraction(ax2, median_chi2)
-                
-                # Add small offset and ensure it stays within bounds
                 text_x = x_frac
                 
                 ax2.text(
                     text_x - 0.02,
                     0.5,
                     rf"$t_0={fit_time:.2f} \, [M]$",
-                    color=color,  # Use same color as the line for better association
+                    color=color,  
                     rotation=90,
                     ha="right",
                     va="center",
-                    transform=ax2.transAxes  # Use axes coordinates for both x and y
+                    transform=ax2.transAxes 
                 )
                 ax1.plot(fit_time, cdf_lefts_median[i], marker="o", color=color, markersize=3, zorder=10)
 
-        #fit_times_dense = np.linspace(fit_times[0], fit_times[-1], 100)
-        #cdf_lefts_median_spline = CubicSpline(fit_times, cdf_lefts_median)
-        #cdf_lefts_median_smooth = cdf_lefts_median_spline(fit_times_dense)
-        #cdf_lefts_upper_spline = CubicSpline(fit_times, cdf_lefts_upper)
-        #cdf_lefts_upper_smooth = cdf_lefts_upper_spline(fit_times_dense)
-        #cdf_lefts_lower_spline = CubicSpline(fit_times, cdf_lefts_lower)
-        #cdf_lefts_lower_smooth = cdf_lefts_lower_spline(fit_times_dense)
-
         ax1.axhline(0.5, color="k", linestyle="-", alpha=0.4)
-        window_length = 5  # Must be odd number and less than data length
-        poly_order = 2      # Polynomial order for the filter
-
-        # Apply the filter to each curve
-        #cdf_smooth_median = savgol_filter(cdf_lefts_median, window_length, poly_order)
-        #cdf_smooth_lower = savgol_filter(cdf_lefts_lower, window_length, poly_order)
-        #cdf_smooth_upper = savgol_filter(cdf_lefts_upper, window_length, poly_order)
 
         # Plot the smoothed data
         ax1.plot(fit_times, cdf_lefts_median, color="k", linestyle="-")
         ax1.fill_between(fit_times, cdf_lefts_lower, cdf_lefts_upper, color="k", alpha=0.1)
-        #ax1.set_xlim(-2, 5)
         ax1.set_xlim(-10, 100)
-        #ax1.set_ylim(0, 1.05)
         ax1.set_ylim(-0.5, 1.5)
         ax2.set_xlabel(r"$\xi^2$")
         ax2.set_ylabel("Relative frequency")

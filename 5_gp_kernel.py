@@ -56,11 +56,10 @@ for i, (ell, m) in enumerate(spherical_modes):
         ls=":",
     )
 
-    period_length = tuned_params[(ell, m)]["period"]
+    period_length = tuned_params[(ell, m)]["period"] / 3*np.sqrt(2)
 
-    y_pos = np.min(np.real(R[ell, m])) + 0.7 * np.ptp(np.real(R[ell, m]))
-    
-    """
+    y_pos = np.min(np.real(R[ell, m])) + 0.8 * np.ptp(np.real(R[ell, m]))
+
     axs[i].plot(
         [40, 40 + period_length],
         [y_pos, y_pos],
@@ -84,12 +83,11 @@ for i, (ell, m) in enumerate(spherical_modes):
     )
     axs[i].text(
         40 + period_length / 2,
-        y_pos + 0.14 * np.ptp(np.real(R[ell, m])),
+        y_pos + 0.1 * np.ptp(np.real(R[ell, m])),
         r"$P^{\beta}_i$",
         ha="center",
         fontsize=7,
     )
-    """
 
     axs[i].fill_between(
         analysis_times,
@@ -102,7 +100,7 @@ for i, (ell, m) in enumerate(spherical_modes):
 
     axs[i].set_title(rf"$\beta = ({ell}, {m})$")
     axs[i].set_xlim(0, 80)
-    axs[i].set_ylabel(r"$\mathfrak{r}^{\beta}_{i} \,\, [M]$")
+    axs[i].set_ylabel(r"$\mathfrak{r}^{\beta}_{i} \,\, [M^2]$")
 
 solid_line = Line2D([0], [0], color="black", linestyle="-")
 dotted_line = Line2D([0], [0], color="black", linestyle=":")
