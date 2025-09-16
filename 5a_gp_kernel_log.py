@@ -31,7 +31,7 @@ HYPERPARAM_RULE_DICT_GP = {
 #hyperparams = [6.1930717137040645, 0.38265931880613024]
 #tuned_params = bgp.get_tuned_params(param_dict_lm, hyperparams, HYPERPARAM_RULE_DICT_GP, spherical_modes=None)
 
-spherical_modes = [(2, 2), (3, 2), (4, 4)]
+spherical_modes = [(2, 2), (3, 2), (4, 2)]
 #spherical_modes = [(2,1), (3, 2), (4, 4)]
 
 kernel_dict = {
@@ -116,7 +116,7 @@ for i, (ell, m) in enumerate(spherical_modes):
     """
     axs[i].set_title(rf"$\beta = ({ell}, {m})$")
     axs[i].set_xlim(-10, 300)
-    axs[i].set_ylabel(r"$\mathfrak{r}^{\beta}_{i} \,\, [M^2]$")
+    axs[i].set_ylabel(r"$\mathfrak{r}^{\beta}_{i} \,\, [M^{-1}]$")
     axs[i].set_yscale("log")
     #axs[i].set_ylim(1e-11, 3e-3)
     axs[i].set_ylim(1e-13, 3e-2)
@@ -139,4 +139,4 @@ axs[-1].add_artist(line_legend)
 axs[-1].legend(frameon=False, loc="lower right", ncol=1, bbox_to_anchor=(0.93, -0.75))
 axs[-1].set_xlabel("$t \,\, [M]$")
 
-fig.savefig(f"outputs/credible_regions_log_{data_type}.pdf", dpi=600, bbox_inches="tight")
+fig.savefig(f"outputs/credible_regions_log_{data_type}_test.pdf", dpi=600, bbox_inches="tight")

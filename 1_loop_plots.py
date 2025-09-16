@@ -449,7 +449,7 @@ class MethodPlots:
         ax.set_xlim(-10, 30)
         ax.set_ylim(1e-1, 1e3)
         ax.set_xlabel("$t_0 \, [M]$")
-        ax.set_ylabel(r"$|\hat{C}_{\alpha}[\mathcal{N}]| \,\, [M]$")
+        ax.set_ylabel(r"$|\hat{C}_{\alpha}[\mathcal{N}]| \,\, [M^{-1}]$")
         ax.set_yscale("log")
 
         plt.tight_layout()
@@ -661,10 +661,10 @@ class MethodPlots:
         ax_bottom_center.set_title(r"$n = 1$")
         ax_bottom_right.set_title(r"$n = 2$")
 
-        ax_bottom_left.set_xlabel(r"$\mathrm{Re} \, C_{\alpha} \,\, [M]$")
-        ax_bottom_left.set_ylabel(r"$\mathrm{Im} \, C_{\alpha} \,\, [M]$", labelpad=-2)
-        ax_bottom_center.set_xlabel(r"$\mathrm{Re} \, C_{\alpha} \,\, [M]$")
-        ax_bottom_right.set_xlabel(r"$\mathrm{Re} \, C_{\alpha} \,\, [M]$")
+        ax_bottom_left.set_xlabel(r"$\mathrm{Re} \, C_{\alpha} \,\, [M^{-1}]$")
+        ax_bottom_left.set_ylabel(r"$\mathrm{Im} \, C_{\alpha} \,\, [M^{-1}]$", labelpad=-2)
+        ax_bottom_center.set_xlabel(r"$\mathrm{Re} \, C_{\alpha} \,\, [M^{-1}]$")
+        ax_bottom_right.set_xlabel(r"$\mathrm{Re} \, C_{\alpha} \,\, [M^{-1}]$")
 
         plt.tight_layout()
         fig.savefig(output_path, bbox_inches="tight")
@@ -689,8 +689,14 @@ class MethodPlots:
             levels=[0.1, 0.5, 0.9],
         )
 
-        def update(i):
+        # Apply cubic spline to smooth the mean vectors
+        fine_grid = np.linspace(self.T0s[0], self.T0s[-1], len(self.T0s) * 100)
+        smoothed_mean_vector_WN_x = CubicSpline(self.T0s, self.mean_vector_WN[:, index1])(fine_grid)
+        smoothed_mean_vector_WN_y = CubicSpline(self.T0s, self.mean_vector_WN[:, index2])(fine_grid)
+        smoothed_mean_vector_GP_x = CubicSpline(self.T0s, self.mean_vector_GP[:, index1])(fine_grid)
+        smoothed_mean_vector_GP_y = CubicSpline(self.T0s, self.mean_vector_GP[:, index2])(fine_grid)
 
+        def update(i):
             fig.clear()
 
             samples_WN = self.samples_WN[i, :, index1 : index2 + 1]
@@ -721,17 +727,18 @@ class MethodPlots:
             fig.axes[1].set_xticks([-0.05, 0, 0.05])
             fig.axes[1].set_yticks([-0.05, 0, 0.05])
 
+            # Plot smoothed trajectories
             fig.axes[1].plot(
-                self.mean_vector_WN[: i + 1, index1],
-                self.mean_vector_WN[: i + 1, index2],
+                smoothed_mean_vector_WN_x[: i * 100 + 1],
+                smoothed_mean_vector_WN_y[: i * 100 + 1],
                 "-",
                 color="blue",
                 alpha=0.7,
                 label="Trajectory WN",
             )
             fig.axes[1].plot(
-                self.mean_vector_GP[: i + 1, index1],
-                self.mean_vector_GP[: i + 1, index2],
+                smoothed_mean_vector_GP_x[: i * 100 + 1],
+                smoothed_mean_vector_GP_y[: i * 100 + 1],
                 "-",
                 color="red",
                 alpha=0.7,

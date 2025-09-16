@@ -100,8 +100,8 @@ for rssname, radii in zip(rssnames, rss):
             with open(f'{filepath}/superrest_data/SXS:BBH_ExtCCE_superrest:{filenum}/SXS:BBH_ExtCCE_superrest:{filenum}_{lev}_{rssname}_h.pickle', 'wb') as f:
                 pickle.dump(h_dict, f)
 
-            with open(f'{filepath}/superrest_data_test/SXS:BBH_ExtCCE_superrest:{filenum}/SXS:BBH_ExtCCE_superrest:{filenum}_{lev}_{rssname}_h.pickle', 'wb') as f:
-                pickle.dump(h_dict, f)
+            #with open(f'{filepath}/superrest_data_test/SXS:BBH_ExtCCE_superrest:{filenum}/SXS:BBH_ExtCCE_superrest:{filenum}_{lev}_{rssname}_h.pickle', 'wb') as f:
+            #    pickle.dump(h_dict, f)
 
             #with open(f'{filepath}/superrest_data_test/SXS:BBH_ExtCCE_superrest:{filenum}/SXS:BBH_ExtCCE_superrest:{filenum}_{lev}_{rssname}_h_pre.pickle', 'wb') as f:
             #    pickle.dump(h_dict_pre, f)

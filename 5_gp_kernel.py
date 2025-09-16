@@ -56,7 +56,7 @@ for i, (ell, m) in enumerate(spherical_modes):
         ls=":",
     )
 
-    period_length = tuned_params[(ell, m)]["period"] / 3*np.sqrt(2)
+    period_length = tuned_params[(ell, m)]["period"] * np.sqrt(5/72)
 
     y_pos = np.min(np.real(R[ell, m])) + 0.8 * np.ptp(np.real(R[ell, m]))
 
@@ -100,7 +100,7 @@ for i, (ell, m) in enumerate(spherical_modes):
 
     axs[i].set_title(rf"$\beta = ({ell}, {m})$")
     axs[i].set_xlim(0, 80)
-    axs[i].set_ylabel(r"$\mathfrak{r}^{\beta}_{i} \,\, [M^2]$")
+    axs[i].set_ylabel(r"$\mathfrak{r}^{\beta}_{i} \,\, [M^{-1}]$")
 
 solid_line = Line2D([0], [0], color="black", linestyle="-")
 dotted_line = Line2D([0], [0], color="black", linestyle=":")

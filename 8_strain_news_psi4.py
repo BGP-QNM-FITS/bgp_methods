@@ -86,6 +86,16 @@ for i, data_type in enumerate(data_types):
 
     if data_type == 'strain':
         ref_samples = samples_GP
+        param_names = fit_GP.fit["param_names"]
+        ref_params = fit_GP.fit["ref_params"]
+        ref_params_nonlinear = fit_GP.fit["ref_params_nonlinear"]
+        chif_nonlinear, Mf_nonlinear = fit_GP.get_nonlinear_mf_chif(T0, fit_GP.T, fit_GP.spherical_modes, fit_GP.chif_ref, fit_GP.Mf_ref)
+
+        axes[-1].axvline(sim_main.Mf, color="k", ls='--', alpha=0.3)
+        axes[-1].axvline(Mf_nonlinear, color="k", ls='-', alpha=0.3)
+
+        axes[-2].axvline(sim_main.chif_mag, color="k", ls='--', alpha=0.3)
+        axes[-2].axvline(chif_nonlinear, color="k", ls='-', alpha=0.3)
 
     for j in range(len(qnm_list) * 2 + 2):
         param_samples_WN = samples_WN[:, j]
@@ -95,17 +105,14 @@ for i, data_type in enumerate(data_types):
         sns.kdeplot(param_samples_GP, ax=axes[j], color=colors_2[i], bw_adjust=2, ls='-')
 
 for j in range(len(qnm_list) * 2 + 2):
-    param_names = fit_GP.fit["param_names"]
-    ref_params = fit_GP.fit["ref_params"]
-    ref_params_nonlinear = fit_GP.fit["ref_params_nonlinear"]
     axes[j].set_ylabel("")
     axes[j].set_yticks([])
     if j < len(qnm_list) * 2:
         n = j // 2
         component = "Re" if j % 2 == 0 else "Im"
-        title = fr"{component}$\, C_{{(2, 2, {n}, +)}} \,\, [M]$"
+        title = fr"{component}$\, C_{{(2, 2, {n}, +)}} \,\, [M^{{-1}}]$"
         if n == 7:
-            title = fr"{component}$\, C_{{(3, 2, {0}, +)}} \,\, [M]$"
+            title = fr"{component}$\, C_{{(3, 2, {0}, +)}} \,\, [M^{{-1}}]$"
         axes[j].set_title(title)
         axes[j].axvline(ref_params[j], color="k", ls='--', alpha=0.3)
         axes[j].axvline(ref_params_nonlinear[j], color="k", ls='-', alpha=0.3)
@@ -117,14 +124,6 @@ for j in range(len(qnm_list) * 2 + 2):
     axes[j].set_xlim(lower_bound, upper_bound)
     axes[j].set_xticks(np.round(np.linspace(lower_bound, upper_bound, 3), 3))
 
-chif_nonlinear, Mf_nonlinear = fit_GP.get_nonlinear_mf_chif(T0, fit_GP.T, fit_GP.spherical_modes, fit_GP.chif_ref, fit_GP.Mf_ref)
-
-axes[-1].axvline(sim_main.Mf, color="k", ls='--', alpha=0.3)
-axes[-1].axvline(Mf_nonlinear, color="k", ls='-', alpha=0.3)
-
-axes[-2].axvline(sim_main.chif_mag, color="k", ls='--', alpha=0.3)
-axes[-2].axvline(chif_nonlinear, color="k", ls='-', alpha=0.3)
-
 # Create legend for linestyles
 linestyle_handles = [
     plt.Line2D([0], [0], color="black", ls='--', label="WN"),
@@ -135,7 +134,7 @@ linestyle_handles = [
 # Create legend for colors
 color_handles = [
     plt.Line2D([0], [0], color=colors_2[0], label=r"$h$"),
-    plt.Line2D([0], [0], color=colors_2[1], label=r"$\mathfrak{N}$"),
+    plt.Line2D([0], [0], color=colors_2[1], label=r"$\mathcal{N}$"),
     plt.Line2D([0], [0], color=colors_2[2], label=r"$\Psi_4$")
 ]
 
