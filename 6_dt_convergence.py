@@ -71,7 +71,7 @@ SIM_TRAINING_MODE_RULES = {
 }
 
 SMOOTHNESS = 1e-3
-TIME_SHIFT = 0 
+TIME_SHIFT = 0
 
 # These determine the parameter and training range but do not have to match `analysis times' used later.
 
@@ -82,8 +82,8 @@ TIME_STEP = 0.1
 TRAINING_START_TIME_WN = 0
 TRAINING_RANGE_WN = 80
 
-TRAINING_START_TIME_GP = 20 
-TRAINING_RANGE_GP = 60 
+TRAINING_START_TIME_GP = 20
+TRAINING_RANGE_GP = 60
 
 # Define training bounds
 
@@ -140,15 +140,16 @@ dts = [5, 4, 3, 2, 1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.35, 0.3, 0.25, 0.2, 0.15, 
 ID = "0001"
 R = bgp.get_residual_data(big=True, data_type=data_type)
 param_dict = bgp.get_param_dict(data_type=data_type)
-sim_main = bgp.SXS_CCE(ID, type=data_type, lev="Lev5", radius="R2") 
+sim_main = bgp.SXS_CCE(ID, type=data_type, lev="Lev5", radius="R2")
 
-R_dict_GP = {} 
+R_dict_GP = {}
 analysis_times = np.arange(RESIDUAL_BIG_START, RESIDUAL_BIG_START + RESIDUAL_BIG_END, TIME_STEP)
-mask_GP = (analysis_times >= TRAINING_START_TIME_GP) & (analysis_times < TRAINING_START_TIME_GP + TRAINING_RANGE_GP) 
+mask_GP = (analysis_times >= TRAINING_START_TIME_GP) & (analysis_times < TRAINING_START_TIME_GP + TRAINING_RANGE_GP)
 
 data_times = analysis_times[mask_GP]
 for id in R.keys():
     R_dict_GP[id] = {key: value[mask_GP] for key, value in R[id].items()}
+
 
 def get_hyperparameters_dt(training_spherical_modes=TRAINING_SPH_MODES):
     hyperparameters_array_dt = np.zeros((len(dts), len(INITIAL_PARAMS_GP)))
@@ -221,7 +222,7 @@ def plot_parameters_dt():
     N_MAX = 6
     T0_REF = 17
     T = 100
-    
+
     tuned_param_dict_GP = bgp.get_tuned_param_dict(kernel_type="GP", data_type=data_type)[ID]
     tuned_param_dict_WN = bgp.get_tuned_param_dict(kernel_type="WN", data_type=data_type)[ID]
     qnm_list = [(2, 2, n, 1) for n in np.arange(0, N_MAX + 1)]
@@ -313,10 +314,10 @@ if __name__ == "__main__":
 
     # for mode in [(2,2), (4,4)]:
     #    hyperparameters_array_dt = get_hyperparameters_dt(training_spherical_modes=[mode])
-    #with open(f"hyperparameters_array_dt.pkl", "wb") as f:
+    # with open(f"hyperparameters_array_dt.pkl", "wb") as f:
     #    pickle.dump(hyperparameters_array_dt, f)
 
-    #with open("hyperparameters_array_dt.pkl", "rb") as f:
+    # with open("hyperparameters_array_dt.pkl", "rb") as f:
     #    hyperparameters_array_dt = pickle.load(f)
 
     plot_hyperparameters_dt(hyperparameters_array_dt)

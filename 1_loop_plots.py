@@ -34,8 +34,8 @@ class MethodPlots:
         include_chif=True,
         use_nonlinear_params=False,
         decay_corrected=False,
-        data_type='strain',
-        strain_parameters=False, 
+        data_type="strain",
+        strain_parameters=False,
     ):
         self.id = id
         self.N_MAX = N_MAX
@@ -49,7 +49,7 @@ class MethodPlots:
         self.data_type = data_type
         self.strain_parameters = strain_parameters
 
-        self.sim_main = bgp.SXS_CCE(id, type=self.data_type, lev="Lev5", radius="R2") 
+        self.sim_main = bgp.SXS_CCE(id, type=self.data_type, lev="Lev5", radius="R2")
         self.sim_lower = bgp.SXS_CCE(id, type=self.data_type, lev="Lev4", radius="R2")
 
         self._align_waveforms()
@@ -136,9 +136,9 @@ class MethodPlots:
         """
         Load tuned kernel parameters for GP and WN fits.
         """
-        self.tuned_param_dict_GP = bgp.get_tuned_param_dict("GP", data_type=self.data_type)[self.id] 
+        self.tuned_param_dict_GP = bgp.get_tuned_param_dict("GP", data_type=self.data_type)[self.id]
         self.tuned_param_dict_WN = bgp.get_tuned_param_dict("WN", data_type=self.data_type)[self.id]
-        #self.tuned_param_dict_GPC = bgp.get_tuned_param_dict("GPc", data_type=self.data_type)[self.id]
+        # self.tuned_param_dict_GPC = bgp.get_tuned_param_dict("GPc", data_type=self.data_type)[self.id]
 
     def compute_mf_chif(self):
         """
@@ -257,7 +257,7 @@ class MethodPlots:
             include_chif=self.include_chif,
             include_Mf=self.include_Mf,
             data_type=self.data_type,
-            strain_parameters=self.strain_parameters, 
+            strain_parameters=self.strain_parameters,
         )
 
         fits_GP = bgp.BGP_fit(
@@ -278,7 +278,7 @@ class MethodPlots:
             include_chif=self.include_chif,
             include_Mf=self.include_Mf,
             data_type=self.data_type,
-            strain_parameters=self.strain_parameters, 
+            strain_parameters=self.strain_parameters,
         )
 
         self._store_results(fits_GP.fits, fits_WN.fits, fits_LS, main_data_masked, lower_data_masked)
@@ -418,13 +418,13 @@ class MethodPlots:
                 linestyle="--",
                 color=colors[i],
             )
-            #ax.fill_between(
+            # ax.fill_between(
             #    self.T0s,
             #    self.amplitudes_GP_percentiles[0.25][:, i],
             #    self.amplitudes_GP_percentiles[0.75][:, i],
             #    alpha=0.2,
             #    color=colors[i],
-            #)
+            # )
 
         solid_line = Line2D([0], [0], color="black", linestyle="-")
         dashed_line = Line2D([0], [0], color="black", linestyle="--")
@@ -540,18 +540,14 @@ class MethodPlots:
             fine_grid = np.linspace(self.T0s[0], self.T0s[-1], len(self.T0s) * 100)
             smoothed_x = CubicSpline(self.T0s, self.mean_vector_WN[:, 2 * i])(fine_grid)
             smoothed_y = CubicSpline(self.T0s, self.mean_vector_WN[:, 2 * i + 1])(fine_grid)
-            smoothed_significance = np.minimum(1, CubicSpline(self.T0s, self.significances_WN[:, i])(fine_grid)) # TODO maybe replace with a logistic
+            smoothed_significance = np.minimum(
+                1, CubicSpline(self.T0s, self.significances_WN[:, i])(fine_grid)
+            )  # TODO maybe replace with a logistic
 
             if i not in [0, 1, 2]:
                 continue
 
-            ax_top.plot(
-                fine_grid,
-                smoothed_significance,
-                label=f"{qnm[2]}",
-                color=colors[i],
-                ls = '--'
-            )
+            ax_top.plot(fine_grid, smoothed_significance, label=f"{qnm[2]}", color=colors[i], ls="--")
 
             if i == 0:
                 ax_bottom_left.plot(
@@ -782,12 +778,12 @@ def main():
         include_chif=True,
         use_nonlinear_params=False,
         decay_corrected=True,
-        data_type='news',
-        strain_parameters=False, 
+        data_type="news",
+        strain_parameters=False,
     )
 
-    #method_plots.qnm_list += [(3,2,0,1)]
-    #method_plots._initialize_results()
+    # method_plots.qnm_list += [(3,2,0,1)]
+    # method_plots._initialize_results()
 
     method_plots.load_tuned_parameters()
     method_plots.compute_mf_chif()

@@ -9,7 +9,7 @@ config = PlotConfig()
 config.apply_style()
 
 id = "0001"
-sim = bgp.SXS_CCE(id, type='strain', lev="Lev5", radius="R2")
+sim = bgp.SXS_CCE(id, type="strain", lev="Lev5", radius="R2")
 M = sim.Mf
 mode = (2, 2)
 TRAINING_START_TIME = -10
@@ -25,13 +25,13 @@ colors = LinearSegmentedColormap.from_list("custom_colormap", config.colors2)(np
 
 for idx, data_type in enumerate(data_types):
     R = bgp.get_residual_data(big=True, data_type=data_type)[id]
-    
+
     scaling_factor = 1.0
     if data_type == "news":
         scaling_factor = M
     elif data_type == "psi4":
-        scaling_factor = M**2  
-    
+        scaling_factor = M**2
+
     ax.semilogy(
         analysis_times,
         np.abs(np.real(R[mode])) * scaling_factor,
@@ -46,13 +46,6 @@ ax.set_ylim(1e-15, 1e-2)
 
 type_handles = [Line2D([0], [0], color=colors[i]) for i in range(len(data_types))]
 
-ax.legend(
-    type_handles,
-    labels,
-    frameon=False,
-    loc="upper right",
-    bbox_to_anchor=(1.0, 1.0),
-    ncol=1
-)
+ax.legend(type_handles, labels, frameon=False, loc="upper right", bbox_to_anchor=(1.0, 1.0), ncol=1)
 
 plt.savefig("outputs/residual_comparison.pdf", dpi=600, bbox_inches="tight")

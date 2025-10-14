@@ -69,7 +69,7 @@ mode_filters = {
 
 analysis_times = np.arange(TRAINING_START_TIME, TRAINING_END_TIME, TIME_STEP)
 
-data_type = 'news'
+data_type = "news"
 
 tuned_param_dict_GP = bgp.get_tuned_param_dict("GP", data_type=data_type)
 tuned_param_dict_WN = bgp.get_tuned_param_dict("WN", data_type=data_type)
@@ -99,7 +99,7 @@ def kl_divergence_figs():
                 analysis_times, tuned_param_dict_WN[sim_id][sph_mode], bgp.kernel_WN, regularization_factor=1e2
             )
             kernel_matrix_GP = bgp.compute_kernel_matrix(
-                analysis_times, tuned_param_dict_GP[sim_id][sph_mode], bgp.kernel_GP, regularization_factor=1e2 
+                analysis_times, tuned_param_dict_GP[sim_id][sph_mode], bgp.kernel_GP, regularization_factor=1e2
             )
             kernel_matrix_GPC = bgp.compute_kernel_matrix(
                 analysis_times, tuned_param_dict_GPC[sim_id][sph_mode], bgp.kernel_GPC, regularization_factor=1e2
@@ -184,7 +184,7 @@ def kl_divergence_histogram(sn_list_full, cn_list_full, sc_list_full):
     )
     ax.hist(
         sc_list_full,
-        bins=bins - 0.05, 
+        bins=bins - 0.05,
         alpha=0.7,
         label="WN, GPc",
         color=colors[0],
@@ -193,7 +193,7 @@ def kl_divergence_histogram(sn_list_full, cn_list_full, sc_list_full):
     )
     ax.hist(
         sn_list_full,
-        bins=bins + 0.05, 
+        bins=bins + 0.05,
         alpha=0.7,
         label="WN, GP",
         color=colors[1],
@@ -201,7 +201,7 @@ def kl_divergence_histogram(sn_list_full, cn_list_full, sc_list_full):
         linewidth=0.5,
     )
 
-    #ax.set_xlim(1.8, 8.2)
+    # ax.set_xlim(1.8, 8.2)
     ax.set_xlabel(r"$\log_{10}(D)$")
     ax.set_ylabel("Frequency")
     ax.legend(frameon=False, loc="upper right")

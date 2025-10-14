@@ -17,19 +17,19 @@ TIME_STEP = 0.1
 
 analysis_times = np.arange(TRAINING_START_TIME, TRAINING_START_TIME + TRAINING_END_TIME, TIME_STEP)
 
-data_type = 'news'
+data_type = "news"
 
 R = bgp.get_residual_data(big=True, data_type=data_type)[id]
 tuned_params = bgp.get_tuned_param_dict("GP", data_type=data_type)[id]
-param_dict_lm = bgp.get_param_dict(data_type=data_type)[id] 
+param_dict_lm = bgp.get_param_dict(data_type=data_type)[id]
 
 HYPERPARAM_RULE_DICT_GP = {
     "sigma_max": "multiply",
     "period": "multiply",
 }
 
-#hyperparams = [6.1930717137040645, 0.38265931880613024]
-#tuned_params = bgp.get_tuned_params(param_dict_lm, hyperparams, HYPERPARAM_RULE_DICT_GP, spherical_modes=None)
+# hyperparams = [6.1930717137040645, 0.38265931880613024]
+# tuned_params = bgp.get_tuned_params(param_dict_lm, hyperparams, HYPERPARAM_RULE_DICT_GP, spherical_modes=None)
 
 spherical_modes = [(2, 2), (3, 2), (4, 4)]
 
@@ -56,7 +56,7 @@ for i, (ell, m) in enumerate(spherical_modes):
         ls=":",
     )
 
-    period_length = tuned_params[(ell, m)]["period"] * np.sqrt(5/72)
+    period_length = tuned_params[(ell, m)]["period"] * np.sqrt(5 / 72)
 
     y_pos = np.min(np.real(R[ell, m])) + 0.8 * np.ptp(np.real(R[ell, m]))
 

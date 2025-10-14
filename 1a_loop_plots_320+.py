@@ -34,8 +34,8 @@ class MethodPlots:
         include_chif=True,
         use_nonlinear_params=False,
         decay_corrected=False,
-        data_type='strain',
-        strain_parameters=False, 
+        data_type="strain",
+        strain_parameters=False,
     ):
         self.id = id
         self.N_MAX = N_MAX
@@ -49,7 +49,7 @@ class MethodPlots:
         self.data_type = data_type
         self.strain_parameters = strain_parameters
 
-        self.sim_main = bgp.SXS_CCE(id, type=self.data_type, lev="Lev5", radius="R2") 
+        self.sim_main = bgp.SXS_CCE(id, type=self.data_type, lev="Lev5", radius="R2")
         self.sim_lower = bgp.SXS_CCE(id, type=self.data_type, lev="Lev4", radius="R2")
 
         self._align_waveforms()
@@ -105,8 +105,8 @@ class MethodPlots:
         self.unweighted_mismatches_noise = np.zeros(num_T0s)
         self.weighted_mismatches_noise = np.zeros(num_T0s)
 
-        #self.log_likelihood_WN = np.zeros(num_T0s)
-        #self.log_likelihood_GP = np.zeros(num_T0s)
+        # self.log_likelihood_WN = np.zeros(num_T0s)
+        # self.log_likelihood_GP = np.zeros(num_T0s)
 
         self.amplitudes_LS = np.zeros((num_T0s, num_modes))
 
@@ -141,7 +141,7 @@ class MethodPlots:
         """
         self.tuned_param_dict_GP = bgp.get_tuned_param_dict("GP", data_type=self.data_type)[self.id]
         self.tuned_param_dict_WN = bgp.get_tuned_param_dict("WN", data_type=self.data_type)[self.id]
-        #self.tuned_param_dict_GPC = bgp.get_tuned_param_dict("GPc", data_type=self.data_type)[self.id]
+        # self.tuned_param_dict_GPC = bgp.get_tuned_param_dict("GPc", data_type=self.data_type)[self.id]
 
     def compute_mf_chif(self):
         """
@@ -260,7 +260,7 @@ class MethodPlots:
             include_chif=self.include_chif,
             include_Mf=self.include_Mf,
             data_type=self.data_type,
-            strain_parameters=self.strain_parameters, 
+            strain_parameters=self.strain_parameters,
         )
 
         fits_GP = bgp.BGP_fit(
@@ -281,7 +281,7 @@ class MethodPlots:
             include_chif=self.include_chif,
             include_Mf=self.include_Mf,
             data_type=self.data_type,
-            strain_parameters=self.strain_parameters, 
+            strain_parameters=self.strain_parameters,
         )
 
         self._store_results(fits_GP.fits, fits_WN.fits, fits_LS, main_data_masked, lower_data_masked)
@@ -299,9 +299,7 @@ class MethodPlots:
             data_array_LS = np.array([fit_LS[i]["data"][key] for key in fit_LS[i]["data"].keys()])
 
             self.unweighted_mismatches_LS[i] = bgp.mismatch(model_array_LS, data_array_LS)
-            self.weighted_mismatches_LS[i] = bgp.mismatch(
-                model_array_LS, data_array_LS, fit_GP[i]["noise_covariance"]
-            )
+            self.weighted_mismatches_LS[i] = bgp.mismatch(model_array_LS, data_array_LS, fit_GP[i]["noise_covariance"])
 
             self.unweighted_mismatches_WN[i] = bgp.mismatch(
                 fit_WN[i]["model_array_linear"], fit_WN[i]["data_array_masked"]
@@ -322,9 +320,7 @@ class MethodPlots:
             )
 
             self.unweighted_mismatches_noise[i] = bgp.mismatch(main_data[i], lower_data[i])
-            self.weighted_mismatches_noise[i] = bgp.mismatch(
-                main_data[i], lower_data[i], fit_GP[i]["noise_covariance"]
-            )
+            self.weighted_mismatches_noise[i] = bgp.mismatch(main_data[i], lower_data[i], fit_GP[i]["noise_covariance"])
 
             # Amplitudes
             self.amplitudes_LS[i, :] = np.abs(fit_LS[i]["C"])
@@ -442,14 +438,14 @@ class MethodPlots:
         plt.close(fig)
 
     def plot_amplitude(self, output_path="outputs/amplitude_plot.pdf", show=False):
-        fig, ax = plt.subplots(figsize=(self.config.fig_width, self.config.fig_height*1.1))
+        fig, ax = plt.subplots(figsize=(self.config.fig_width, self.config.fig_height * 1.1))
         colors = self.custom_colormap(np.linspace(0, 1, len(self.qnm_list)))
 
         for i, qnm in enumerate(self.qnm_list):
             ax.plot(
                 self.T0s,
                 self.amplitudes_GP_percentiles[0.5][:, i],
-                label=fr"$n = {qnm[2]}$",
+                label=rf"$n = {qnm[2]}$",
                 color=colors[i],
             )
             ax.plot(
@@ -519,7 +515,7 @@ class MethodPlots:
             else:
                 colors = self.custom_colormap(np.linspace(0, 1, len(self.qnm_list)))
                 color = colors[i]
-                label=fr"$n = {qnm[2]}$",
+                label = (rf"$n = {qnm[2]}$",)
                 lw = 1
 
             ax.plot(
@@ -576,7 +572,6 @@ class MethodPlots:
         if show:
             plt.show()
         plt.close(fig)
-
 
     def plot_spirals_static_320(self, output_path="outputs/posterior_spiral_static.pdf", show=False):
 
@@ -747,11 +742,11 @@ def main():
         include_chif=True,
         use_nonlinear_params=False,
         decay_corrected=True,
-        data_type='news',
-        strain_parameters=False, 
+        data_type="news",
+        strain_parameters=False,
     )
 
-    method_plots.qnm_list += [(3,2,0,1)]
+    method_plots.qnm_list += [(3, 2, 0, 1)]
     method_plots._initialize_results()
 
     method_plots.load_tuned_parameters()

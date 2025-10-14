@@ -8,9 +8,6 @@ from matplotlib.colors import to_hex
 from matplotlib.colors import LinearSegmentedColormap
 
 from plot_config import PlotConfig
-from scipy.interpolate import interp1d
-from scipy.interpolate import CubicSpline
-from scipy.signal import savgol_filter
 
 
 class MethodPlots2:
@@ -27,8 +24,8 @@ class MethodPlots2:
         num_samples=10000,
         include_Mf=True,
         include_chif=True,
-        data_type='news',
-        strain_parameters=True, 
+        data_type="news",
+        strain_parameters=True,
     ):
         self.id = id
         self.N_MAX = N_MAX
@@ -101,9 +98,9 @@ class MethodPlots2:
     def get_model_linear(self, constant_term, mean_vector, ref_params, model_terms):
         return constant_term + np.einsum("p,stp->st", mean_vector - ref_params, model_terms)
 
-    def data_to_axis_fraction(self, ax, data_coord, axis='x'):
+    def data_to_axis_fraction(self, ax, data_coord, axis="x"):
         """Convert a data coordinate to an axis fraction (0-1 scale)"""
-        if axis == 'x':
+        if axis == "x":
             axis_min, axis_max = ax.get_xlim()
         else:
             axis_min, axis_max = ax.get_ylim()
@@ -121,7 +118,7 @@ class MethodPlots2:
         fit_times = self.T0s
         t0_choices = [2.5, 6, 10]
         closest_indices = [np.argmin(np.abs(fit_times - t0_choice)) for t0_choice in t0_choices]
-        color_index = 0 
+        color_index = 0
 
         fig, (ax1, ax2) = plt.subplots(
             2, 1, figsize=(self.config.fig_width, self.config.fig_height * 1.5), gridspec_kw={"height_ratios": [1, 2]}
@@ -142,7 +139,7 @@ class MethodPlots2:
             r_squareds = np.zeros(min(1000, len(samples)))
 
             eigvals = np.linalg.eigvals(fit["noise_covariance"])[0].real
-            #eigvals = eigvals[eigvals > 1e-11]
+            # eigvals = eigvals[eigvals > 1e-11]
             num_draws = int(1e5)
             normal_samples = np.random.normal(0, 1, size=(num_draws, len(eigvals)))
             dist_samples = 2 * np.sum(eigvals * normal_samples**2, axis=1)
@@ -151,7 +148,7 @@ class MethodPlots2:
                 color = colors[color_index]
                 color_index += 1
             else:
-                color = 'k'
+                color = "k"
 
             for j in range(min(1000, len(samples))):
                 theta_j = samples[j, :]
@@ -184,17 +181,17 @@ class MethodPlots2:
 
                 if fit_time == fit_times[closest_indices][2]:
                     x_frac -= 0.04
-                
+
                 ax2.text(
                     x_frac - 0.01,
                     0.35,
                     rf"$t_0={fit_time:.1f} \, [M]$",
-                    color=color,  
+                    color=color,
                     rotation=90,
                     ha="right",
                     va="center",
                     transform=ax2.transAxes,
-                    fontsize=7
+                    fontsize=7,
                 )
                 ax1.plot(fit_time, cdfs_left_median[i], marker="o", color=color, markersize=3, zorder=10)
 
@@ -226,8 +223,8 @@ def main():
         num_samples=int(1e3),
         include_Mf=True,
         include_chif=True,
-        data_type='news',
-        strain_parameters=False, 
+        data_type="news",
+        strain_parameters=False,
     )
 
     method_plots.load_tuned_parameters()

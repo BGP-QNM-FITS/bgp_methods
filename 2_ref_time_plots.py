@@ -31,9 +31,9 @@ class MethodPlots2:
         large_num_samples=100000,
         include_Mf=True,
         include_chif=True,
-        data_type='strain',  # 'strain' or 'news'
-        strain_parameters=False, 
-        use_nonlinear_params=False
+        data_type="strain",  # 'strain' or 'news'
+        strain_parameters=False,
+        use_nonlinear_params=False,
     ):
         self.id = id
         self.N_MAX = N_MAX
@@ -50,7 +50,7 @@ class MethodPlots2:
         self.sim_main = bgp.SXS_CCE(id, type=self.data_type, lev="Lev5", radius="R2")
         self.sim_lower = bgp.SXS_CCE(id, type=self.data_type, lev="Lev4", radius="R2")
 
-        self.qnm_list = [(2, 2, n, 1) for n in np.arange(0, N_MAX + 1)] + [(3,2,0,1)]
+        self.qnm_list = [(2, 2, n, 1) for n in np.arange(0, N_MAX + 1)] + [(3, 2, 0, 1)]
         self.spherical_modes = [(2, 2)]
 
         self.chif_mag_ref = self.sim_main.chif_mag
@@ -71,7 +71,7 @@ class MethodPlots2:
         """
         self.tuned_param_dict_GP = bgp.get_tuned_param_dict("GP", data_type=self.data_type)[self.id]
         self.tuned_param_dict_WN = bgp.get_tuned_param_dict("WN", data_type=self.data_type)[self.id]
-        #self.tuned_param_dict_GPC = bgp.get_tuned_param_dict("GPc", data_type=self.data_type)[self.id]
+        # self.tuned_param_dict_GPC = bgp.get_tuned_param_dict("GPc", data_type=self.data_type)[self.id]
 
     def compute_mf_chif(self):
         """
@@ -919,13 +919,13 @@ def main():
         T=100,
         T0_REF=17,
         num_samples=int(1e4),
-        #large_num_samples=int(1e7),
+        # large_num_samples=int(1e7),
         large_num_samples=int(1e4),
         include_Mf=True,
         include_chif=True,
-        data_type='news',
-        strain_parameters=False, 
-        use_nonlinear_params=False
+        data_type="news",
+        strain_parameters=False,
+        use_nonlinear_params=False,
     )
 
     method_plots.load_tuned_parameters()
