@@ -633,7 +633,7 @@ class MethodPlots2:
             bw_adjust=2.0,
         )
 
-        ax_inset.set_title(r"$|C_{\alpha}| \,\, [M]$", fontsize=8)
+        ax_inset.set_title(r"$|C_{\alpha}| \,\, [M^{-1}]$", fontsize=8)
         ax_inset.set_xlim(0, 0.15)
         # ax_inset.set_ylim(0, 2.5)
         ax_inset.set_ylabel("")

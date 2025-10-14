@@ -110,9 +110,9 @@ for j in range(len(qnm_list) * 2 + 2):
     if j < len(qnm_list) * 2:
         n = j // 2
         component = "Re" if j % 2 == 0 else "Im"
-        title = fr"{component}$\, C_{{(2, 2, {n}, +)}} \,\, [M^{{-1}}]$"
+        title = fr"{component}$\, C_{{(2, 2, {n}, +)}}$"
         if n == 7:
-            title = fr"{component}$\, C_{{(3, 2, {0}, +)}} \,\, [M^{{-1}}]$"
+            title = fr"{component}$\, C_{{(3, 2, {0}, +)}}$"
         axes[j].set_title(title)
         axes[j].axvline(ref_params[j], color="k", ls='--', alpha=0.3)
         axes[j].axvline(ref_params_nonlinear[j], color="k", ls='-', alpha=0.3)
