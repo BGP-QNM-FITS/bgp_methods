@@ -1,6 +1,6 @@
 # BGP Methods (2025)
 
-This repo contains code used to generate the figures in the Bayesian Gaussian Process methods paper. 
+This repo contains code used to generate the figures in *[Quasinormal modes from numerical relativity with Bayesian inference (Dyer & Moore, 2025)](https://arxiv.org/pdf/2510.11783)*.
 
 <div align="center">
   
