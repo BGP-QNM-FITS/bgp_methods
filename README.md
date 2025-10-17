@@ -1,6 +1,6 @@
 # BGP Methods (2025)
 
-This repo contains code used to generate the figures in *[Quasinormal modes from numerical relativity with Bayesian inference (Dyer & Moore, 2025)](https://arxiv.org/pdf/2510.11783)*.
+This repository contains code used to generate the figures in [Quasinormal modes from numerical relativity with Bayesian inference (Dyer & Moore, submitted)](https://arxiv.org/pdf/2510.11783).
 
 <div align="center">
   
